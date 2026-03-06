@@ -67,24 +67,48 @@ function loadStoredData() {
     const loggedUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
     // Fallback to global tests if no logged-in user found
-    let tests = MoodFlowData.tests.getAll() || [];
+    let tests = [];
+    try {
+        tests = (MoodFlowData && MoodFlowData.tests && MoodFlowData.tests.getAll()) ? MoodFlowData.tests.getAll() : [];
+    } catch (e) {
+        console.warn('Error loading tests from MoodFlowData:', e);
+        tests = [];
+    }
 
     if (loggedUser && loggedUser.email) {
         tests = tests.filter(t => t.userId === loggedUser.email);
     }
 
-    if (tests.length > 0) {
-        dashboardData.rawTestData = tests.map(test => ({
-            date: new Date(test.date).toISOString().split('T')[0],
-            time: new Date(test.date).toLocaleTimeString(),
-            moodScore: parseFloat((test.metrices && test.metrices.averageScore) || test.averageScore) || 0,
-            emotionalState: (test.metrices && test.metrices.emotionalState) || test.emotionalState || 'Good',
-            stressLevel: test.metrices ? Math.round(test.metrices.stressLevel || 0) : Math.round(10 - parseFloat(test.averageScore || 0)),
-            duration: test.duration || 0,
-            raw: test
-        }));
+    console.log(`📊 Dashboard: Loaded ${tests.length} tests for user ${loggedUser?.email || 'no user'}`);
 
+    if (tests.length > 0) {
+        dashboardData.rawTestData = tests.map((test, idx) => {
+            // Extract mood score with priority: metrices > top level > 0
+            let moodScore = 0;
+            if (test.metrices && test.metrices.averageScore) {
+                moodScore = parseFloat(test.metrices.averageScore);
+            } else if (test.averageScore) {
+                moodScore = parseFloat(test.averageScore);
+            } else if (test.score) {
+                moodScore = parseFloat(test.score);
+            }
+            
+            console.log(`  Test ${idx}: date=${test.date}, moodScore=${moodScore}, state=${test.emotionalState || test.metrices?.emotionalState}`);
+            
+            return {
+                date: new Date(test.date).toISOString().split('T')[0],
+                time: new Date(test.date).toLocaleTimeString(),
+                moodScore: moodScore || 0,
+                emotionalState: (test.metrices && test.metrices.emotionalState) || test.emotionalState || 'Good',
+                stressLevel: test.metrices && test.metrices.stressLevel !== undefined ? Math.round(test.metrices.stressLevel) : Math.round(10 - (moodScore || 0)),
+                duration: test.duration || 0,
+                raw: test
+            };
+        });
+
+        console.log(`  Raw data after mapping:`, dashboardData.rawTestData);
         calculateStats();
+        console.log(`  Stats calculated:`, dashboardData.stats);
     } else {
         // No data for this user - show empty state
         dashboardData.rawTestData = [];
@@ -645,12 +669,13 @@ function exportReportPDF() {
     } else {
         data.forEach(t => {
             const tr = document.createElement('tr');
+            const stressDisplay = t.stressLevel !== undefined && t.stressLevel !== null ? t.stressLevel : 'N/A';
             tr.innerHTML = `
                 <td style="padding:6px; border-bottom:1px solid #eee;">${t.date}</td>
                 <td style="padding:6px; border-bottom:1px solid #eee;">${t.time}</td>
                 <td style="padding:6px; border-bottom:1px solid #eee; text-align:right;">${t.moodScore}</td>
                 <td style="padding:6px; border-bottom:1px solid #eee;">${t.emotionalState}</td>
-                <td style="padding:6px; border-bottom:1px solid #eee; text-align:right;">${t.stressLevel || 'N/A'}</td>
+                <td style="padding:6px; border-bottom:1px solid #eee; text-align:right;">${stressDisplay}</td>
             `;
             tableBody.appendChild(tr);
         });
@@ -679,71 +704,104 @@ function exportReportPDF() {
         });
     }
 
+    // Force display the element to ensure proper rendering
+    element.style.display = 'block';
+    element.style.visibility = 'visible';
+
     // Wait for images to load before exporting
     const imgs = element.querySelectorAll('img');
-    const imgPromises = Array.from(imgs).map(img => new Promise(res => {
-        if (!img.src) return res();
-        if (img.complete) return res();
-        img.onload = img.onerror = () => res();
+    console.log(`Found ${imgs.length} images to load`);
+    
+    const imgPromises = Array.from(imgs).map((img, idx) => new Promise(res => {
+        console.log(`Image ${idx}: src=${img.src?.substring(0, 50)}...`);
+        if (!img.src) {
+            console.warn(`Image ${idx} has no src`);
+            return res();
+        }
+        if (img.complete) {
+            console.log(`Image ${idx} already complete`);
+            return res();
+        }
+        
+        const timeout = setTimeout(() => {
+            console.warn(`Image ${idx} load timeout`);
+            res();
+        }, 3000);
+        
+        img.onload = () => {
+            clearTimeout(timeout);
+            console.log(`Image ${idx} loaded`);
+            res();
+        };
+        img.onerror = (err) => {
+            clearTimeout(timeout);
+            console.warn(`Image ${idx} failed to load:`, err);
+            res();
+        };
     }));
 
     Promise.all(imgPromises).then(async () => {
-        // Small delay to ensure layout stabilizes
-        await new Promise(r => setTimeout(r, 8000));
+        console.log('All images loaded, proceeding with export');
+        
+        // Wait a moment for DOM to stabilize
+        await new Promise(r => setTimeout(r, 800));
 
-        // Debug info to help diagnose blank exports
-        try {
-            console.debug('Export debug:', {
-                chartsAvailable: {
-                    sentiment: !!(charts && charts.sentimentChart && charts.sentimentChart.toBase64Image),
-                    pie: !!(charts && charts.moodPieChart && charts.moodPieChart.toBase64Image),
-                    historical: !!(charts && charts.historicalChart && charts.historicalChart.toBase64Image),
-                    radar: !!(charts && charts.radarChart && charts.radarChart.toBase64Image)
-                },
-                hasTests: hasTests,
-                dataLength: dashboardData.rawTestData ? dashboardData.rawTestData.length : 0
-            });
-        } catch (e) {}
-
-        // Clone-based export: avoids ancestor/display issues
+        // Create a container positioned off-screen (invisible to user but still rendered)
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.top = '-9999px';
+        container.style.left = '-9999px';
+        container.style.width = '210mm';
+        container.style.zIndex = '99999';
+        container.style.background = 'white';
+        container.style.visibility = 'visible';
+        
+        // Clone the element for export
         const clone = element.cloneNode(true);
-        clone.id = 'reportPDF_clone';
         clone.style.display = 'block';
-        clone.style.position = 'fixed';
-        clone.style.left = '50%';
-        clone.style.top = '20px';
-        clone.style.transform = 'translateX(-50%)';
-        clone.style.zIndex = '99999';
-        clone.style.background = 'white';
-        document.body.appendChild(clone);
+        clone.style.visibility = 'visible';
+        clone.style.position = 'relative';
+        clone.style.width = '100%';
+        container.appendChild(clone);
+        document.body.appendChild(container);
+
+        console.log('Container added to DOM, waiting for render...');
+        
+        // Wait for the clone to render in the DOM
+        await new Promise(r => setTimeout(r, 1000));
 
         // Ensure fonts are ready (best-effort)
         if (document.fonts && document.fonts.ready) {
-            try { await document.fonts.ready; } catch (e) { /* ignore */ }
+            try { await document.fonts.ready; } catch (e) { console.warn('Font loading failed', e); }
         }
 
-        // Wait for images inside the clone to load
-        const imgs2 = clone.querySelectorAll('img');
-        await Promise.all(Array.from(imgs2).map(img => new Promise(res => {
-            if (!img.src) return res();
-            if (img.complete) return res();
-            img.onload = img.onerror = () => res();
-        })));
-
-        // Perform export on the clone
+        console.log('Starting PDF export...');
+        
+        // Perform export from the clone which is now visible
         try {
             await html2pdf().set({
-                margin: 0.5,
+                margin: 10,
                 filename: 'MoodFlow_Report.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: true
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }).from(clone).save();
+            
+            console.log('PDF export successful!');
         } catch (err) {
             console.error('PDF export failed', err);
             alert('PDF export failed: ' + (err && err.message ? err.message : err));
         } finally {
-            // Clean up clone
-            try { document.body.removeChild(clone); } catch (e) {}
+            // Remove the visible container
+            try { document.body.removeChild(container); } catch (e) {}
+            
+            // Hide original element again
+            element.style.display = 'none';
         }
     });
 }
