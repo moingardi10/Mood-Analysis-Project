@@ -1,245 +1,253 @@
-// Dummy dataset of 20 questions (Replace with your actual dataset later)
 const questions = [
     {
-        id: 1,
-        question: "How often do you feel happy and content with your life?",
-        category: "emotional_wellbeing",
-        options: [
-            { value: 5, label: "Always", description: "I feel happy and content most of the time" },
-            { value: 4, label: "Often", description: "I frequently feel positive and satisfied" },
-            { value: 3, label: "Sometimes", description: "My happiness varies throughout the week" },
-            { value: 2, label: "Rarely", description: "I occasionally feel content" },
-            { value: 1, label: "Never", description: "I struggle to feel happy or satisfied" }
-        ]
-    },
-    {
-        id: 2,
-        question: "How well do you handle stress in your daily life?",
-        category: "stress_management",
-        options: [
-            { value: 5, label: "Very Well", description: "I manage stress effectively and stay calm" },
-            { value: 4, label: "Well", description: "I handle most stressful situations adequately" },
-            { value: 3, label: "Moderately", description: "Stress affects me but I can cope" },
-            { value: 2, label: "Poorly", description: "Stress often overwhelms me" },
-            { value: 1, label: "Very Poorly", description: "I struggle significantly with stress" }
-        ]
-    },
-    {
-        id: 3,
-        question: "How energetic do you feel throughout the day?",
-        category: "energy_level",
-        options: [
-            { value: 5, label: "Very Energetic", description: "I have abundant energy all day long" },
-            { value: 4, label: "Energetic", description: "I feel good energy most of the day" },
-            { value: 3, label: "Moderate Energy", description: "My energy fluctuates during the day" },
-            { value: 2, label: "Low Energy", description: "I often feel tired and drained" },
-            { value: 1, label: "Exhausted", description: "I constantly feel fatigued" }
-        ]
-    },
-    {
-        id: 4,
-        question: "How satisfied are you with your sleep quality?",
-        category: "sleep_quality",
-        options: [
-            { value: 5, label: "Excellent", description: "I sleep deeply and wake up refreshed" },
-            { value: 4, label: "Good", description: "I generally sleep well" },
-            { value: 3, label: "Fair", description: "My sleep is inconsistent" },
-            { value: 2, label: "Poor", description: "I struggle to get quality sleep" },
-            { value: 1, label: "Very Poor", description: "I have severe sleep problems" }
-        ]
-    },
-    {
-        id: 5,
-        question: "How often do you feel anxious or worried?",
-        category: "anxiety_level",
-        options: [
-            { value: 1, label: "Always", description: "Anxiety dominates my daily life" },
-            { value: 2, label: "Often", description: "I frequently feel anxious" },
-            { value: 3, label: "Sometimes", description: "Occasional anxiety that I can manage" },
-            { value: 4, label: "Rarely", description: "Anxiety is uncommon for me" },
-            { value: 5, label: "Never", description: "I feel calm and relaxed" }
-        ]
-    },
-    {
-        id: 6,
-        question: "How confident do you feel in your abilities?",
-        category: "self_confidence",
-        options: [
-            { value: 5, label: "Very Confident", description: "I believe strongly in myself" },
-            { value: 4, label: "Confident", description: "I trust my abilities" },
-            { value: 3, label: "Somewhat Confident", description: "My confidence varies" },
-            { value: 2, label: "Not Very Confident", description: "I often doubt myself" },
-            { value: 1, label: "Not Confident", description: "I struggle with self-doubt" }
-        ]
-    },
-    {
-        id: 7,
-        question: "How connected do you feel to others?",
-        category: "social_connection",
-        options: [
-            { value: 5, label: "Very Connected", description: "I have strong, meaningful relationships" },
-            { value: 4, label: "Connected", description: "I feel good about my relationships" },
-            { value: 3, label: "Somewhat Connected", description: "I have some connections but want more" },
-            { value: 2, label: "Disconnected", description: "I often feel isolated" },
-            { value: 1, label: "Very Disconnected", description: "I feel very lonely" }
-        ]
-    },
-    {
-        id: 8,
-        question: "How motivated are you to achieve your goals?",
-        category: "motivation",
-        options: [
-            { value: 5, label: "Highly Motivated", description: "I'm driven and focused on my goals" },
-            { value: 4, label: "Motivated", description: "I actively work toward my goals" },
-            { value: 3, label: "Somewhat Motivated", description: "My motivation fluctuates" },
-            { value: 2, label: "Unmotivated", description: "I struggle to stay motivated" },
-            { value: 1, label: "Very Unmotivated", description: "I find it hard to care about goals" }
-        ]
-    },
-    {
-        id: 9,
-        question: "How often do you engage in activities you enjoy?",
-        category: "life_satisfaction",
-        options: [
-            { value: 5, label: "Daily", description: "I make time for enjoyable activities every day" },
-            { value: 4, label: "Several Times a Week", description: "I regularly do things I love" },
-            { value: 3, label: "Weekly", description: "I occasionally enjoy my hobbies" },
-            { value: 2, label: "Rarely", description: "I seldom have time for enjoyment" },
-            { value: 1, label: "Never", description: "I don't engage in enjoyable activities" }
-        ]
-    },
-    {
-        id: 10,
-        question: "How well do you cope with changes or unexpected events?",
-        category: "resilience",
-        options: [
-            { value: 5, label: "Very Well", description: "I adapt easily to change" },
-            { value: 4, label: "Well", description: "I handle change reasonably well" },
-            { value: 3, label: "Moderately", description: "Change is challenging but manageable" },
-            { value: 2, label: "Poorly", description: "Change is very difficult for me" },
-            { value: 1, label: "Very Poorly", description: "Change severely impacts me" }
-        ]
-    },
-    {
-        id: 11,
-        question: "How satisfied are you with your work or daily activities?",
-        category: "work_satisfaction",
-        options: [
-            { value: 5, label: "Very Satisfied", description: "I find my work fulfilling and meaningful" },
-            { value: 4, label: "Satisfied", description: "I'm generally happy with what I do" },
-            { value: 3, label: "Neutral", description: "My work is okay, neither good nor bad" },
-            { value: 2, label: "Dissatisfied", description: "I'm unhappy with my current situation" },
-            { value: 1, label: "Very Dissatisfied", description: "I'm very unhappy with what I do" }
-        ]
-    },
-    {
-        id: 12,
-        question: "How often do you experience mood swings?",
-        category: "emotional_stability",
-        options: [
-            { value: 1, label: "Very Frequently", description: "My mood changes constantly" },
-            { value: 2, label: "Frequently", description: "I have regular mood fluctuations" },
-            { value: 3, label: "Sometimes", description: "Occasional mood changes" },
-            { value: 4, label: "Rarely", description: "My mood is generally stable" },
-            { value: 5, label: "Never", description: "I maintain emotional balance" }
-        ]
-    },
-    {
-        id: 13,
-        question: "How comfortable are you expressing your emotions?",
-        category: "emotional_expression",
-        options: [
-            { value: 5, label: "Very Comfortable", description: "I freely express how I feel" },
-            { value: 4, label: "Comfortable", description: "I can express emotions when needed" },
-            { value: 3, label: "Somewhat Comfortable", description: "I express some emotions" },
-            { value: 2, label: "Uncomfortable", description: "I struggle to share my feelings" },
-            { value: 1, label: "Very Uncomfortable", description: "I cannot express my emotions" }
-        ]
-    },
-    {
-        id: 14,
-        question: "How optimistic do you feel about your future?",
-        category: "optimism",
-        options: [
-            { value: 5, label: "Very Optimistic", description: "I'm excited about what's ahead" },
-            { value: 4, label: "Optimistic", description: "I have positive expectations" },
-            { value: 3, label: "Neutral", description: "I'm uncertain about the future" },
-            { value: 2, label: "Pessimistic", description: "I worry about what's coming" },
-            { value: 1, label: "Very Pessimistic", description: "I feel hopeless about the future" }
-        ]
-    },
-    {
-        id: 15,
-        question: "How often do you feel physically healthy and well?",
-        category: "physical_health",
-        options: [
-            { value: 5, label: "Always", description: "I feel physically great" },
-            { value: 4, label: "Often", description: "I'm usually in good health" },
-            { value: 3, label: "Sometimes", description: "My health varies" },
-            { value: 2, label: "Rarely", description: "I often don't feel well" },
-            { value: 1, label: "Never", description: "I consistently feel unwell" }
-        ]
-    },
-    {
-        id: 16,
-        question: "How well do you maintain a work-life balance?",
-        category: "life_balance",
-        options: [
-            { value: 5, label: "Excellent Balance", description: "I balance work and personal life well" },
-            { value: 4, label: "Good Balance", description: "I manage both areas adequately" },
-            { value: 3, label: "Fair Balance", description: "Balance is challenging" },
-            { value: 2, label: "Poor Balance", description: "One area dominates my life" },
-            { value: 1, label: "No Balance", description: "I have no work-life balance" }
-        ]
-    },
-    {
-        id: 17,
-        question: "How often do you feel grateful for things in your life?",
-        category: "gratitude",
-        options: [
-            { value: 5, label: "Daily", description: "I regularly appreciate what I have" },
-            { value: 4, label: "Often", description: "I frequently feel grateful" },
-            { value: 3, label: "Sometimes", description: "I occasionally feel thankful" },
-            { value: 2, label: "Rarely", description: "Gratitude is uncommon for me" },
-            { value: 1, label: "Never", description: "I struggle to feel grateful" }
-        ]
-    },
-    {
-        id: 18,
-        question: "How effectively do you communicate with others?",
-        category: "communication",
-        options: [
-            { value: 5, label: "Very Effectively", description: "I communicate clearly and well" },
-            { value: 4, label: "Effectively", description: "I generally communicate well" },
-            { value: 3, label: "Moderately", description: "My communication is adequate" },
-            { value: 2, label: "Ineffectively", description: "I struggle with communication" },
-            { value: 1, label: "Very Ineffectively", description: "Communication is very difficult" }
-        ]
-    },
-    {
-        id: 19,
-        question: "How satisfied are you with your personal growth?",
-        category: "personal_growth",
-        options: [
-            { value: 5, label: "Very Satisfied", description: "I'm constantly growing and learning" },
-            { value: 4, label: "Satisfied", description: "I'm making good progress" },
-            { value: 3, label: "Neutral", description: "Growth is happening but slow" },
-            { value: 2, label: "Dissatisfied", description: "I feel stagnant" },
-            { value: 1, label: "Very Dissatisfied", description: "I'm not growing at all" }
-        ]
-    },
-    {
-        id: 20,
-        question: "Overall, how would you rate your current mental wellbeing?",
-        category: "overall_wellbeing",
-        options: [
-            { value: 5, label: "Excellent", description: "I'm in a great mental state" },
-            { value: 4, label: "Good", description: "My mental health is solid" },
-            { value: 3, label: "Fair", description: "I'm doing okay mentally" },
-            { value: 2, label: "Poor", description: "I'm struggling mentally" },
-            { value: 1, label: "Very Poor", description: "My mental health needs help" }
-        ]
-    },
+                id: 1,
+                question: "I felt interested in what I was doing.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I was fully interested and engaged in what I was doing" },
+                    { value: 4, label: "Quite a bit", description: "I was very interested most of the time" },
+                    { value: 3, label: "Moderately", description:  "I felt somewhat interested in my activities" },
+                    { value: 2, label: "A little", description: "I rarely felt interested in what I was doing" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel interested in my activities" }
+                ]
+            },
+
+
+{
+                id: 2,
+                question: "I felt distressed or emotionally uncomfortable.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: " I felt extremely distressed or emotionally uncomfortable" },
+                    { value: 4, label: "Quite a bit", description: "I felt very distressed or emotionally uncomfortable" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately distressed or emotionally uncomfortable"},
+                    { value: 2, label: "A little", description:  "I felt slightly distressed or emotionally uncomfortable" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel distressed or emotionally uncomfortable" }
+                ]
+            },
+
+{
+                id: 3,
+                question: "I felt excited.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely excited" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very excited" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately excited"},
+                    { value: 2, label: "A little", description:  "I felt slightly excited" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel excited" }
+                ]
+            },
+
+{
+                id: 4,
+                question: "I felt upset.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely upset" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very upset" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately upset"},
+                    { value: 2, label: "A little", description:  "I felt slightly upset" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel upset" }
+                ]
+            },
+
+{
+                id: 5,
+                question: "I felt strong or capable.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely strong or capable" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very strong or capable" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately strong or capable"},
+                    { value: 2, label: "A little", description:  "I felt slightly strong or capable" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel strong or capable" }
+                ]
+            },
+
+{
+                id: 6,
+                question: "I felt guilty.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely guilty" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very guilty" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately guilty"},
+                    { value: 2, label: "A little", description:  "I felt slightly guilty" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel guilty" }
+                ]
+            },
+
+{
+                id: 7,
+                question: "I felt scared.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely scared" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very scared" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately scared"},
+                    { value: 2, label: "A little", description:  "I felt slightly scared" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel scared" }
+                ]
+            },
+{
+                id: 8,
+                question: "I felt hostile or angry toward others.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely hostile or angry toward others" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very hostile or angry toward others" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately hostile or angry toward others"},
+                    { value: 2, label: "A little", description:  "I felt slightly hostile or angry toward others" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel hostile or angry toward others" }
+                ]
+            },
+{
+                id: 9,
+                question: "I felt enthusiastic.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely enthusiastic" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very enthusiastic" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately enthusiastic"},
+                    { value: 2, label: "A little", description:  "I felt slightly enthusiastic" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel enthusiastic" }
+                ]
+            },
+{
+                id: 10,
+                question: "I felt proud of myself.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely proud of myself" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very proud of myself" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately proud of myself"},
+                    { value: 2, label: "A little", description:  "I felt slightly proud of myself" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel proud of myself" }
+                ]
+            },
+{
+                id: 11,
+                question: "I felt irritable or easily annoyed",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely irritable or easily annoyed" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very irritable or easily annoyed" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately irritable or easily annoyed"},
+                    { value: 2, label: "A little", description:  "I felt slightly irritable or easily annoyed" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel irritable or easily annoyed" }
+                ]
+            },
+
+
+{
+                id: 12,
+                question: "I felt alert and mentally awake.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely alert and mentally awake" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very alert and mentally awake" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately alert and mentally awake"},
+                    { value: 2, label: "A little", description:  "I felt slightly alert and mentally awake" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel alert and mentally awake" }
+                ]
+            },
+{
+                id: 13,
+                question: "I felt ashamed.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely ashamed" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very ashamed" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately ashamed"},
+                    { value: 2, label: "A little", description:  "I felt slightly ashamed" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel ashamed" }
+                ]
+            },
+{
+                id: 14,
+                question: "I felt inspired or motivated.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely inspired or motivated" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very inspired or motivated" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately inspired or motivated"},
+                    { value: 2, label: "A little", description:  "I felt slightly inspired or motivated" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel inspired or motivated" }
+                ]
+            },
+{
+                id: 15,
+                question: "I felt nervous or anxious.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely nervous or anxious" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very nervous or anxious" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately nervous or anxious"},
+                    { value: 2, label: "A little", description:  "I felt slightly nervous or anxious" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel nervous or anxious" }
+                ]
+            },
+{
+                id: 16,
+                question: "I felt determined to get things done.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely determined to get things done" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very determined to get things done" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately determined to get things done"},
+                    { value: 2, label: "A little", description:  "I felt slightly determined to get things done" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel determined to get things done" }
+                ]
+            },
+{
+                id: 17,
+                question: "I felt attentive and focused.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely attentive and focused" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very attentive and focused" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately attentive and focused"},
+                    { value: 2, label: "A little", description:  "I felt slightly attentive and focused" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel attentive and focused" }
+                ]
+            },
+{
+                id: 18,
+                question: "I felt jittery or physically restless.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely jittery or physically restless" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very jittery or physically restless" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately jittery or physically restless"},
+                    { value: 2, label: "A little", description:  "I felt slightly jittery or physically restless" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel jittery or physically restless" }
+                ]
+            },
+{
+                id: 19,
+                question: "I felt active and energetic.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely active and energetic" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very active and energetic" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately active and energetic"},
+                    { value: 2, label: "A little", description:  "I felt slightly active and energetic" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel active and energetic" }
+                ]
+            },
+{
+                id: 20,
+                question: "I felt afraid.",
+                category: "How You Felt Emotionally",
+                options: [
+                    { value: 5, label: "Extremely", description: "I felt extremely afraid" },
+                    { value: 4, label: "Quite a bit", description:   "I felt very afraid" },
+                    { value: 3, label: "Moderately", description:   "I felt moderately afraid"},
+                    { value: 2, label: "A little", description:  "I felt slightly afraid" },
+                    { value: 1, label: "Very slightly or not at all", description:  "I did not feel afraid" }
+                ]
+            },
     {
         id: 21,
         question: "I was able to clearly identify why I was feeling the way I did.",
