@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodFlow - Understand Your Inner World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="homepagestyle.css">
+</head>
+<body>
+    <div class="animated-bg"></div>
+    <div class="grain"></div>
+
+    <div class="content-wrapper">
+        <nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-opacity-80">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+                        <span class="text-xl"></span>
+                    </div>
+                    <span class="font-display text-2xl">MoodFlow</span>
+                </div>
+                <div class="hidden md:flex space-x-8 font-mono text-sm">
+                    <a href="#features" class="hover:text-pink-400 transition">Features</a>
+                    <a href="#how-it-works" class="hover:text-pink-400 transition">How It Works</a>
+                    <a href="#testimonials" class="hover:text-pink-400 transition">Stories</a>
+                </div>
+                <a href="signpage.html">
+
+                    <button class="px-6 py-2 bg-white bg-opacity-10 rounded-full hover:bg-opacity-20 transition font-mono text-sm">
+                        Sign in 
+                    </button>
+                </a>
+                </div>
+        </nav>
+
+        <section class="min-h-screen flex items-center justify-center px-6 pt-20 relative overflow-hidden">
+            <div class="blob w-96 h-96 bg-pink-500 absolute top-20 right-10"></div>
+            <div class="blob w-80 h-80 bg-cyan-500 absolute bottom-20 left-10"></div>
+            
+            <div class="max-w-6xl mx-auto text-center relative z-10">
+                <div class="inline-block px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full text-sm font-mono mb-8 hero-subtitle">
+                     AI-Powered Emotional Intelligence
+                </div>
+                
+                <h1 class="hero-title font-display mb-6">
+                    Decode Your<br/>
+                    <span class="bg-gradient-to-r from-pink-500 via-orange-500 to-cyan-500 bg-clip-text text-transparent">
+                        Inner Universe
+                    </span>
+                </h1>
+                
+                <p class="hero-subtitle text-xl md:text-2xl max-w-3xl mx-auto mb-12 text-gray-300 leading-relaxed">
+                    Interactive mood analysis that transforms how you understand yourself. 
+                    Answer thoughtful questions, get personalized insights, track your emotional patterns.
+                </p>
+                
+                <div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button class="btn-glow px-10 py-5 rounded-full font-display text-lg font-bold" >
+                        Start Free Analysis
+                    </button>
+                    
+                </div>
+
+                <div class="mt-16 flex justify-center space-x-12 font-mono text-sm">
+                    <div class="text-center">
+                        <div class="stat-number text-4xl font-bold">2M+</div>
+                        <div class="text-gray-400">Analyses</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="stat-number text-4xl font-bold">94%</div>
+                        <div class="text-gray-400">Accuracy</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="stat-number text-4xl font-bold">50K+</div>
+                        <div class="text-gray-400">Users</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="py-32 px-6 reveal">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20">
+                    <span class="font-mono text-cyan-400 text-sm tracking-wider">FEATURES</span>
+                    <h2 class="font-display text-5xl md:text-6xl mt-4 mb-6">
+                        Your Personal<br/>Emotional Coach
+                    </h2>
+                    <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                        Powerful tools designed to help you understand, track, and improve your mental wellbeing
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="feature-card stagger-item p-8 rounded-3xl transform translate-y-20">
+                        <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                            
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Smart Questionnaire</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Adaptive questions that evolve based on your responses, ensuring a personalized and meaningful analysis every time.
+                        </p>
+                    </div>
+
+                    <div class="feature-card stagger-item p-8 rounded-3xl transform translate-y-20">
+                        <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                            
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Detailed Reports</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Receive comprehensive insights with visual breakdowns of your emotional patterns, triggers, and strengths.
+                        </p>
+                    </div>
+
+                    <div class="feature-card stagger-item p-8 rounded-3xl transform translate-y-20">
+                        <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                            
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Stats Dashboard</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Track your progress over time with beautiful charts, trends, and actionable insights about your emotional journey.
+                        </p>
+                    </div>
+
+                    <div class="feature-card stagger-item p-8 rounded-3xl transform translate-y-20">
+                        <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                            
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">AI-Powered Analysis</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Advanced algorithms analyze your responses to provide accurate, science-backed emotional assessments.
+                        </p>
+                    </div>
+
+                    <div class="feature-card stagger-item p-8 rounded-3xl transform translate-y-20">
+                        <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                            
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Privacy First</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Your data is encrypted and completely private. We never share your personal information or emotional data.
+                        </p>
+                    </div>
+
+                    <div class="feature-card stagger-item p-8 rounded-3xl transform translate-y-20">
+                        <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                            
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Actionable Tips</h3>
+                        <p class="text-gray-400 leading-relaxed">
+                            Get personalized recommendations and exercises to help improve your emotional wellbeing based on your results.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="py-32 px-6 reveal">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20">
+                    <span class="font-mono text-orange-400 text-sm tracking-wider">HOW IT WORKS</span>
+                    <h2 class="font-display text-5xl md:text-6xl mt-4">
+                        Simple, Yet Powerful
+                    </h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-12">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-3xl font-bold">
+                            1
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Answer Questions</h3>
+                        <p class="text-gray-400">
+                            Take 5-10 minutes to answer thoughtful questions about your feelings, behaviors, and experiences.
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-orange-500 to-cyan-500 flex items-center justify-center text-3xl font-bold">
+                            2
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Get Your Report</h3>
+                        <p class="text-gray-400">
+                            Receive a detailed analysis with insights about your emotional state, patterns, and areas for growth.
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-cyan-500 to-pink-500 flex items-center justify-center text-3xl font-bold">
+                            3
+                        </div>
+                        <h3 class="font-display text-2xl mb-4">Track Progress</h3>
+                        <p class="text-gray-400">
+                            Monitor your emotional journey over time with our intuitive dashboard and see how you evolve.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="py-32 px-6 reveal">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20">
+                    <span class="font-mono text-pink-400 text-sm tracking-wider">TESTIMONIALS</span>
+                    <h2 class="font-display text-5xl md:text-6xl mt-4">
+                        Transforming Lives
+                    </h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="testimonial-card p-8 rounded-3xl">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-orange-400 mr-4"></div>
+                            <div>
+                                <div class="font-bold">Sarah Johnson</div>
+                                <div class="text-sm text-gray-400 font-mono">UX Designer</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed mb-4">
+                            "MoodFlow helped me understand patterns I never noticed before. The insights are incredibly accurate and the dashboard makes tracking my progress so easy."
+                        </p>
+                        <div class="flex text-yellow-400">★★★★★</div>
+                    </div>
+
+                    <div class="testimonial-card p-8 rounded-3xl">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-purple-400 mr-4"></div>
+                            <div>
+                                <div class="font-bold">Michael Chen</div>
+                                <div class="text-sm text-gray-400 font-mono">Software Engineer</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed mb-4">
+                            "As someone who struggles with anxiety, this tool has been a game-changer. The personalized recommendations actually work!"
+                        </p>
+                        <div class="flex text-yellow-400">★★★★★</div>
+                    </div>
+
+                    <div class="testimonial-card p-8 rounded-3xl">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 mr-4"></div>
+                            <div>
+                                <div class="font-bold">Emma Williams</div>
+                                <div class="text-sm text-gray-400 font-mono">Teacher</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed mb-4">
+                            "The interface is beautiful and the reports are so detailed. I love being able to see my emotional growth visualized over time."
+                        </p>
+                        <div class="flex text-yellow-400">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-32 px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="font-display text-5xl md:text-6xl mb-6">
+                    Ready to Understand<br/>Yourself Better?
+                </h2>
+                <p class="text-xl text-gray-400 mb-12">
+                    Join thousands of people discovering their emotional patterns and improving their wellbeing.
+                </p>
+                <button class="btn-glow px-12 py-6 rounded-full font-display text-xl font-bold">
+                    Start Your Free Analysis
+                </button>
+                <p class="text-sm text-gray-500 mt-6 font-mono">No credit card required • 2 minute setup</p>
+            </div>
+        </section>
+
+        <footer class="border-t border-white border-opacity-10 py-12 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid md:grid-cols-4 gap-8 mb-12">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+                                <span class="text-lg">🌊</span>
+                            </div>
+                            <span class="font-display text-xl">MoodFlow</span>
+                        </div>
+                        <p class="text-gray-400 text-sm">
+                            Understanding your emotional universe, one analysis at a time.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold mb-4">Product</h4>
+                        <ul class="space-y-2 text-gray-400 text-sm">
+                            <li><a href="#" class="hover:text-white transition">Features</a></li>
+                            <li><a href="#" class="hover:text-white transition">Pricing</a></li>
+                            <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold mb-4">Company</h4>
+                        <ul class="space-y-2 text-gray-400 text-sm">
+                            <li><a href="#" class="hover:text-white transition">About</a></li>
+                            <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                            <li><a href="#" class="hover:text-white transition">Careers</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold mb-4">Legal</h4>
+                        <ul class="space-y-2 text-gray-400 text-sm">
+                            <li><a href="#" class="hover:text-white transition">Privacy</a></li>
+                            <li><a href="#" class="hover:text-white transition">Terms</a></li>
+                            <li><a href="#" class="hover:text-white transition">Security</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="border-t border-white border-opacity-10 pt-8 flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm font-mono">© 2026 MoodFlow. All rights reserved.</p>
+                    <div class="flex space-x-6 mt-4 md:mt-0">
+                        <a href="#" class="text-gray-400 hover:text-white transition">Twitter</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">LinkedIn</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">Instagram</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="moodflow-data-manager.js"></script>
+    <script src="homepagescript.js"></script>
+</body>
+</html>

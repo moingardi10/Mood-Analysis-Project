@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information - MoodFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B9D;
+            --secondary: #FFA500;
+            --accent: #00D9FF;
+            --dark: #0F0F23;
+            --light: #F8F9FF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.1) 0%, transparent 50%);
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(60px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .required {
+            color: var(--primary);
+        }
+
+        .font-display {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <div class="content-wrapper">
+        <div class="form-container">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+                        <span class="text-2xl">🌊</span>
+                    </div>
+                    <span class="font-display text-3xl">MoodFlow</span>
+                </div>
+                <h1 class="text-3xl font-display mb-3">Before We Begin</h1>
+                <p class="text-gray-400">Please provide some basic information for our research</p>
+            </div>
+
+            <!-- User Information Form -->
+            <form id="userInfoForm" onsubmit="submitUserInfo(event)">
+                
+                <!-- Name -->
+                <div>
+                    <label class="form-label">Full Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="userName" 
+                        class="form-input" 
+                        placeholder="Enter your full name"
+                        required
+                    >
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="form-label">Email Address <span class="required">*</span></label>
+                    <input 
+                        type="email" 
+                        id="userEmail" 
+                        class="form-input" 
+                        placeholder="your.email@example.com"
+                        required
+                    >
+                </div>
+
+                <!-- Role -->
+                <div>
+                    <label class="form-label">Role <span class="required">*</span></label>
+                    <select id="userRole" class="form-select" required>
+                        <option value="">Select your role</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="professor">Professor</option>
+                        <option value="lecturer">Lecturer</option>
+                        <option value="researcher">Researcher</option>
+                        <option value="student">Student</option>
+                        <option value="administrator">Administrator</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Department -->
+                <div>
+                    <label class="form-label">Department</label>
+                    <input 
+                        type="text" 
+                        id="department" 
+                        class="form-input" 
+                        placeholder="e.g., Computer Science, Mathematics"
+                    >
+                </div>
+
+                <!-- Institution -->
+                <div>
+                    <label class="form-label">Institution/School <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="institution" 
+                        class="form-input" 
+                        placeholder="Enter your institution name"
+                        required
+                    >
+                </div>
+
+                <!-- Age -->
+                <div>
+                    <label class="form-label">Age</label>
+                    <input 
+                        type="number" 
+                        id="age" 
+                        class="form-input" 
+                        placeholder="Enter your age"
+                        min="18"
+                        max="100"
+                    >
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="form-label">Gender</label>
+                    <select id="gender" class="form-select">
+                        <option value="">Prefer not to say</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="non-binary">Non-binary</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-primary">
+                    Continue to Assessment →
+                </button>
+
+                <!-- Privacy Notice -->
+                <p class="text-center text-xs text-gray-500 mt-6">
+                    🔒 Your information is collected for research purposes only and will be kept confidential. 
+                    All data is anonymized and securely stored.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script src="data-collection-system.js"></script>
+    <script>
+        function submitUserInfo(event) {
+            event.preventDefault();
+
+            // Collect user data
+            const userData = {
+                userId: 'user_' + Date.now(),
+                name: document.getElementById('userName').value.trim(),
+                email: document.getElementById('userEmail').value.trim(),
+                role: document.getElementById('userRole').value,
+                department: document.getElementById('department').value.trim(),
+                institution: document.getElementById('institution').value.trim(),
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value
+            };
+
+            // Validate required fields
+            if (!userData.name || !userData.email || !userData.role || !userData.institution) {
+                alert('Please fill in all required fields (marked with *)');
+                return;
+            }
+
+            // Start session
+            const sessionId = DataCollectionSystem.session.startSession(userData);
+
+            console.log('Session started:', sessionId);
+            console.log('User data:', userData);
+
+            // Redirect to test page
+            window.location.href = 'take-test.html';
+        }
+
+        // Check if user already has an active session
+        window.addEventListener('load', function() {
+            const session = DataCollectionSystem.session.getCurrentSession();
+            
+            if (session) {
+                // Auto-fill form if session exists
+                document.getElementById('userName').value = session.userData.name || '';
+                document.getElementById('userEmail').value = session.userData.email || '';
+                document.getElementById('userRole').value = session.userData.role || '';
+                document.getElementById('department').value = session.userData.department || '';
+                document.getElementById('institution').value = session.userData.institution || '';
+                document.getElementById('age').value = session.userData.age || '';
+                document.getElementById('gender').value = session.userData.gender || '';
+            }
+        });
+    </script>
+</body>
+</html>

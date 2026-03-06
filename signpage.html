@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - MoodFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="signpagestyle.css">
+
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <div class="grain"></div>
+
+    <div class="content-wrapper">
+        <!-- Navigation -->
+        <nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-opacity-80">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <a href="mood-analysis-homepage.html" class="flex items-center space-x-2">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+                        <span class="text-xl"></span>
+                    </div>
+                    <span class="font-display text-2xl">MoodFlow</span>
+                </a>
+                <a href="#" class="font-mono text-sm text-gray-400 hover:text-white transition">
+                    Need help? →
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="min-h-screen flex items-center justify-center px-6 py-24 relative overflow-hidden">
+            <!-- Decorative Blobs -->
+            <div class="blob w-96 h-96 bg-pink-500 absolute top-10 right-0"></div>
+            <div class="blob w-80 h-80 bg-cyan-500 absolute bottom-10 left-0"></div>
+
+            <div class="max-w-md w-full relative z-10">
+                <!-- Welcome Text -->
+                <div class="text-center mb-8">
+                    <h1 class="font-display text-4xl md:text-5xl mb-4">
+                        Welcome Back
+                    </h1>
+                    <p class="text-gray-400 text-lg">
+                        Continue your journey to emotional clarity
+                    </p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message">
+                    <strong>Error:</strong> <span id="errorText"></span>
+                </div>
+                
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message">
+                    <strong>Success:</strong> Signing you in...
+                </div>
+                <!-- Form Container
+                <div id="loginContainer">
+
+                    <div class="form-container rounded-3xl p-8 md:p-10"> -->
+                        
+                        <!-- Social Sign In Options
+                        <div class="space-y-3 mb-6">
+                            <button class="social-btn" onclick="signInWithGoogle()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                    fill="#4285F4" />
+                                    <path
+                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                    fill="#34A853" />
+                                    <path
+                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                    fill="#FBBC05" />
+                                    <path
+                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                    fill="#EA4335" />
+                                </svg>
+                                Continue with Google
+                            </button>
+                            
+                            <button class="social-btn" onclick="signInWithApple()">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                    d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                                </svg>
+                                Continue with Apple
+                            </button>
+                        </div> -->
+                    <!-- </div> 
+                </div> -->
+                        <!-- Divider
+                        <div class="divider">
+                            <span>OR</span>
+                        </div>
+                         -->
+                    <div id="loginContainer">
+
+                        <!-- Sign In Form -->
+                        <form id="signInForm" onsubmit="handleSignIn(event)">
+                            <!-- Email Input -->
+                            <div class="input-group">
+                                <label class="input-label" for="email">Email Address</label>
+                                <div style="position: relative;">
+                                    <input type="email" id="email" name="email" class="input-field"
+                                    placeholder="you@example.com" required autocomplete="email"
+                                    oninput="validateEmail(this)">
+                                <span class="input-icon">📧</span>
+                                <span class="validation-icon" id="emailValidIcon">✓</span>
+                            </div>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div class="input-group">
+                            <label class="input-label" for="password">Password</label>
+                            <div style="position: relative;">
+                                <input type="password" id="password" name="password" class="input-field"
+                                placeholder="Enter your password" required autocomplete="current-password"
+                                minlength="6">
+                                <span class="input-icon">🔒</span>
+                                <span class="password-toggle" onclick="togglePassword()">
+                                    <span id="eyeIcon">👁️</span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="flex items-center justify-between mb-6">
+                            <label class="checkbox-container">
+                                <input type="checkbox" class="checkbox-input" id="rememberMe" name="rememberMe">
+                                <span class="text-sm text-gray-400">Remember me</span>
+                            </label>
+                            <a href="#" class="link text-sm">Forgot password?</a>
+                        </div>
+                        
+                        <!-- Sign In Button -->
+                        <button type="submit" class="btn-primary" id="signInBtn">
+                            Sign In
+                        </button>
+                    </form>
+                </div>
+                    
+                    <!-- SIGN UP CONTAINER -->
+                    <div id="signupContainer" class="form-container rounded-3xl p-8 md:p-10 hidden"
+                        style="margin-top:20px;">
+
+                        <h2 class="font-display text-3xl mb-6 text-center">Create Account</h2>
+
+                        <div id="signupError" class="error-message">
+                            <strong>Error:</strong> <span id="signupErrorText"></span>
+                        </div>
+
+                        <form id="signupForm" onsubmit="handleSignup(event)">
+
+                            <div class="input-group">
+                                <label class="input-label">Full Name</label>
+                                <input type="text" id="signupName" class="input-field" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label">Email</label>
+                                <input type="email" id="signupEmail" class="input-field" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label">Password</label>
+                                <input type="password" id="signupPassword" class="input-field" required minlength="6">
+                            </div>
+
+                            <button type="submit" class="btn-primary">
+                                Create Account
+                            </button>
+
+                            <p class="text-center mt-4 text-sm text-gray-400">
+                                Already have an account?
+                                <a href="#" class="link" onclick="showLogin(event)">Sign In</a>
+                            </p>
+                        </form>
+                    </div>
+
+                    <!-- Sign Up Link -->
+                    <p class="text-center mt-6 text-gray-400 text-sm">
+                        Don't have an account?
+                        <a href="#" class="link font-semibold" onclick="showSignup(event)">Create one free</a>
+                    </p>
+
+                    <!-- Terms & Privacy -->
+                    <p class="text-center mt-6 text-xs text-gray-500 font-mono">
+                        By signing in, you agree to our
+                        <a href="#" class="link">Terms</a> and
+                        <a href="#" class="link">Privacy Policy</a>
+                    </p>
+                
+
+                <!-- Additional Help -->
+                <div class="text-center mt-8">
+                    <p class="text-gray-500 text-sm font-mono">
+                        Having trouble? <a href="#" class="link">Contact Support</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="moodflow-data-manager.js"></script>
+    <script src="signpagescript.js"></script>
+</body>
+
+</html>

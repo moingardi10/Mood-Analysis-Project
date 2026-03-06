@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Test - MoodFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="taketeststyle.css">
+</head>
+<body>
+    <div class="animated-bg"></div>
+    <div class="grain"></div>
+
+    <div class="content-wrapper">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+                    <span class="text-xl">🌊</span>
+                </div>
+                <span class="font-display text-2xl">MoodFlow</span>
+            </div>
+
+            <button onclick="showExitModal()" class="btn btn-secondary">
+                ← Exit Test
+            </button>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                <span>Question <span id="currentQuestion">1</span> of 30</span>
+                <span id="progressPercent">0%</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Test Container -->
+            <div id="testContainer" class="question-card">
+                <div class="question-number" id="questionNumber">Question 1 of 30</div>
+                <h2 class="question-text" id="questionText">Loading question...</h2>
+
+                <div class="scale-container" id="optionsContainer">
+                    <!-- Options will be dynamically inserted here -->
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>
+                        ← Previous
+                    </button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>
+                        Next →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Container (Hidden initially) -->
+            <div id="resultsContainer" class="results-container" style="display: none;">
+                <div class="results-header">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h1 class="font-display text-5xl mb-4">Test Complete!</h1>
+                    <p class="text-xl text-gray-400 mb-6">Here's your mood analysis summary</p>
+                    <div class="results-score" id="totalScore">8.2</div>
+                    <p class="text-lg text-gray-400">Overall Mood Score</p>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-icon">😊</div>
+                        <div class="result-title">Emotional State</div>
+                        <div class="result-value" id="emotionalState">Positive</div>
+                    </div>
+
+                    <div class="result-card">
+                        <div class="result-icon">💪</div>
+                        <div class="result-title">Stress Level</div>
+                        <div class="result-value" id="stressLevel">Moderate</div>
+                    </div>
+
+                    <div class="result-card">
+                        <div class="result-icon">⚡</div>
+                        <div class="result-title">Energy Level</div>
+                        <div class="result-value" id="energyLevel">High</div>
+                    </div>
+
+                    <div class="result-card">
+                        <div class="result-icon">🧘</div>
+                        <div class="result-title">Wellbeing</div>
+                        <div class="result-value" id="wellbeing">Good</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
+                    <h3 class="text-xl font-bold mb-3">📊 Your Responses Summary</h3>
+                    <div id="responsesSummary" class="text-gray-400"></div>
+                </div>
+
+                <div class="flex gap-4 justify-center flex-wrap">
+                    <button class="btn btn-primary" onclick="window.location.href='user-homepage.html'">
+                        🏠 Back to Home
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewDetailedReport()">
+                        📄 View Detailed Report
+                    </button>
+                    <button class="btn btn-secondary" onclick="retakeTest()">
+                        🔄 Retake Test
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Exit Confirmation Modal -->
+    <div id="exitModal" class="modal">
+        <div class="modal-content">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="text-2xl font-display mb-3">Exit Test?</h3>
+            <p class="text-gray-400 mb-6">Your progress will be lost if you exit now.</p>
+            
+            <div class="flex gap-3">
+                <button class="btn btn-secondary flex-1" onclick="closeExitModal()">
+                    Continue Test
+                </button>
+                <button class="btn btn-primary flex-1" onclick="exitTest()">
+                    Exit Anyway
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="moodflow-data-manager.js"></script>
+    <script src="data-collection-system.js"></script>
+    <script src="taketestscript.js"></script>
+</body>
+</html>

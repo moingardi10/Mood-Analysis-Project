@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MoodFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="dashboardstyle.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <div class="grain"></div>
+
+    <div class="content-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="flex items-center space-x-2 mb-12">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+                    <span class="text-xl">🌊</span>
+                </div>
+                <span class="font-display text-2xl">MoodFlow</span>
+            </div>
+
+            <nav>
+                <a href="user-homepage.html" class="nav-item">
+                    <span class="icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="take-test.html" class="nav-item">
+                    <span class="icon">📝</span>
+                    <span>Take Test</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">🕐</span>
+                    <span>Your History</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">📄</span>
+                    <span>Your Data (Reports)</span>
+                </a>
+                <a href="profile-page.html" class="nav-item">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div>
+                <h1 class="text-2xl font-display">Analytics Dashboard</h1>
+                <p class="text-sm text-gray-400 font-mono">Comprehensive mood insights & trends</p>
+            </div>
+
+            <div class="flex gap-3">
+                <div class="export-menu">
+                    <button class="btn btn-secondary" onclick="toggleExportMenu()">
+                        📥 Export Data
+                    </button>
+                    <div class="export-dropdown" id="exportMenu">
+                        <div class="export-option" onclick="exportData('csv')">📊 Export as CSV</div>
+                        <div class="export-option" onclick="exportData('json')">📄 Export as JSON</div>
+                        <div class="export-option" onclick="exportData('pdf')">📑 Export as PDF</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="window.location.href='take-test.html'">
+                    📝 New Test
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Time Filter -->
+            <div class="card animate-in mb-8">
+                <div class="flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold mb-1">Data Period</h3>
+                        <p class="text-sm text-gray-400">Select time range for analysis</p>
+                    </div>
+                    <div class="date-filter" id="dateFilter">
+                        <button class="filter-btn" onclick="setDateFilter('7days')">7 Days</button>
+                        <button class="filter-btn active" onclick="setDateFilter('30days')">30 Days</button>
+                        <button class="filter-btn" onclick="setDateFilter('90days')">90 Days</button>
+                        <button class="filter-btn" onclick="setDateFilter('year')">1 Year</button>
+                        <button class="filter-btn" onclick="setDateFilter('all')">All Time</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm text-gray-400 font-mono mb-2">AVERAGE MOOD</div>
+                            <div class="stat-number" id="avgMood">8.2</div>
+                        </div>
+                        <span class="trend-indicator trend-up">↑ 5%</span>
+                    </div>
+                    <div class="text-sm text-gray-400">vs previous period</div>
+                </div>
+
+                <div class="stat-card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm text-gray-400 font-mono mb-2">TESTS TAKEN</div>
+                            <div class="stat-number" id="totalTests">47</div>
+                        </div>
+                        <span class="trend-indicator trend-up">↑ 12%</span>
+                    </div>
+                    <div class="text-sm text-gray-400">in selected period</div>
+                </div>
+
+                <div class="stat-card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm text-gray-400 font-mono mb-2">STRESS LEVEL</div>
+                            <div class="stat-number" id="avgStress">3.4</div>
+                        </div>
+                        <span class="trend-indicator trend-down">↓ 8%</span>
+                    </div>
+                    <div class="text-sm text-gray-400">lower is better</div>
+                </div>
+
+                <div class="stat-card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm text-gray-400 font-mono mb-2">COMPLETION RATE</div>
+                            <div class="stat-number" id="completionRate">94%</div>
+                        </div>
+                        <span class="trend-indicator trend-up">↑ 3%</span>
+                    </div>
+                    <div class="text-sm text-gray-400">tests completed</div>
+                </div>
+            </div>
+
+            <!-- Main Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Positive/Negative Sentiment Line Chart -->
+                <div class="card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">Sentiment Analysis</h3>
+                            <p class="text-sm text-gray-400">Positive vs Negative mood trends</p>
+                        </div>
+                        <button class="btn-secondary text-sm px-3 py-1" onclick="refreshChart('sentimentChart')">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weekly Mood Pie Chart -->
+                <div class="card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">Mood Distribution</h3>
+                            <p class="text-sm text-gray-400">Breakdown of emotional states</p>
+                        </div>
+                        <button class="btn-secondary text-sm px-3 py-1" onclick="refreshChart('moodPieChart')">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div class="chart-container-small">
+                        <canvas id="moodPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Past Data Bar Chart (Full Width) -->
+            <div class="card animate-in mb-8">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold">Historical Mood Scores</h3>
+                        <p class="text-sm text-gray-400">Past test results over time</p>
+                    </div>
+                    <button class="btn-secondary text-sm px-3 py-1" onclick="refreshChart('historicalChart')">
+                        🔄 Refresh
+                    </button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="historicalChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Additional Analysis Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Category Breakdown Radar Chart -->
+                <div class="card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">Category Breakdown</h3>
+                            <p class="text-sm text-gray-400">Performance across all categories</p>
+                        </div>
+                    </div>
+                    <div class="chart-container-small">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weekly Activity Heatmap (Doughnut for now) -->
+                <div class="card animate-in">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">Daily Activity</h3>
+                            <p class="text-sm text-gray-400">Tests taken by day of week</p>
+                        </div>
+                    </div>
+                    <div class="chart-container-small">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Section -->
+            <div class="card animate-in mb-8">
+                <h3 class="text-xl font-bold mb-4">💡 AI-Generated Insights</h3>
+
+                <div class="insight-card">
+                    <div class="flex items-start gap-3">
+                        <span class="text-3xl">🎯</span>
+                        <div>
+                            <h4 class="font-bold text-lg mb-2">Pattern Detected</h4>
+                            <p class="text-gray-300">Your mood scores are consistently higher on days when you exercise
+                                in the morning. Consider maintaining this routine for optimal wellbeing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="flex items-start gap-3">
+                        <span class="text-3xl">⚠️</span>
+                        <div>
+                            <h4 class="font-bold text-lg mb-2">Attention Needed</h4>
+                            <p class="text-gray-300">Your stress levels have increased by 15% over the past two weeks.
+                                We recommend trying meditation or speaking with a wellness coach.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="flex items-start gap-3">
+                        <span class="text-3xl">🏆</span>
+                        <div>
+                            <h4 class="font-bold text-lg mb-2">Achievement Unlocked</h4>
+                            <p class="text-gray-300">You've maintained a 12-day streak of completing your mood
+                                assessments! Your consistency is helping build better self-awareness.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Tests Table -->
+            <div class="card animate-in">
+                <h3 class="text-xl font-bold mb-4">Recent Test History</h3>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Mood Score</th>
+                                <th>Emotional State</th>
+                                <th>Stress Level</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="testHistoryTable">
+                            <!-- Will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="reportPDF" style="background:white; color:black; padding:20px; font-family: 'Outfit', sans-serif;">
+                <div style="text-align:center; margin-bottom:12px;">
+                    <h1 style="margin:0;">MoodFlow — Detailed Test Report</h1>
+                    <div id="pdfDate" style="font-size:12px; color:#555; margin-top:6px;"></div>
+                </div>
+
+                <section style="display:flex; gap:12px; margin-bottom:16px;">
+                    <div style="flex:1; padding:12px; border:1px solid #e5e7eb; border-radius:8px;">
+                        <h3 style="margin:0 0 8px 0; font-size:14px;">User</h3>
+                        <div id="pdfUserName" style="font-weight:600;"></div>
+                        <div id="pdfUserEmail" style="font-size:12px; color:#555;"></div>
+                    </div>
+                    <div style="flex:3; display:flex; gap:12px;">
+                        <div style="flex:1; padding:12px; border:1px solid #e5e7eb; border-radius:8px; text-align:center;">
+                            <div style="font-size:12px; color:#666;">Average Mood</div>
+                            <div id="pdfAvgMood" style="font-size:22px; font-weight:700; margin-top:6px;">-</div>
+                        </div>
+                        <div style="flex:1; padding:12px; border:1px solid #e5e7eb; border-radius:8px; text-align:center;">
+                            <div style="font-size:12px; color:#666;">Total Tests</div>
+                            <div id="pdfTotalTests" style="font-size:22px; font-weight:700; margin-top:6px;">0</div>
+                        </div>
+                        <div style="flex:1; padding:12px; border:1px solid #e5e7eb; border-radius:8px; text-align:center;">
+                            <div style="font-size:12px; color:#666;">Avg Stress</div>
+                            <div id="pdfAvgStress" style="font-size:22px; font-weight:700; margin-top:6px;">-</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-bottom:16px;">
+                    <h3 style="margin:0 0 8px 0; font-size:16px;">Charts</h3>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <div style="flex:1 1 48%; border:1px solid #e5e7eb; padding:8px; border-radius:8px;">
+                            <div style="font-size:12px; color:#666; margin-bottom:6px;">Sentiment Trend</div>
+                            <img id="pdfSentimentChart" style="width:100%; height:180px; object-fit:contain;" />
+                        </div>
+                        <div style="flex:1 1 48%; border:1px solid #e5e7eb; padding:8px; border-radius:8px;">
+                            <div style="font-size:12px; color:#666; margin-bottom:6px;">Mood Distribution</div>
+                            <img id="pdfMoodPieChart" style="width:100%; height:180px; object-fit:contain;" />
+                        </div>
+                        <div style="flex:1 1 48%; border:1px solid #e5e7eb; padding:8px; border-radius:8px;">
+                            <div style="font-size:12px; color:#666; margin-bottom:6px;">Historical Scores</div>
+                            <img id="pdfHistoricalChart" style="width:100%; height:180px; object-fit:contain;" />
+                        </div>
+                        <div style="flex:1 1 48%; border:1px solid #e5e7eb; padding:8px; border-radius:8px;">
+                            <div style="font-size:12px; color:#666; margin-bottom:6px;">Category Breakdown</div>
+                            <img id="pdfRadarChart" style="width:100%; height:180px; object-fit:contain;" />
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-bottom:16px;">
+                    <h3 style="margin:0 0 8px 0; font-size:16px;">Recent Test Results</h3>
+                    <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Date</th>
+                                <th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">Time</th>
+                                <th style="text-align:right; padding:6px; border-bottom:1px solid #e5e7eb;">Score</th>
+                                <th style="text-align:left; padding:6px; border-bottom:1px solid #e5e7eb;">State</th>
+                                <th style="text-align:right; padding:6px; border-bottom:1px solid #e5e7eb;">Stress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pdfTestTable">
+                            <!-- populated dynamically -->
+                        </tbody>
+                    </table>
+                </section>
+
+                <section style="margin-top:8px;">
+                    <h3 style="margin:0 0 8px 0; font-size:16px;">AI Insights</h3>
+                    <div id="pdfInsights" style="font-size:12px; color:#333;">
+                        <!-- populated dynamically -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="moodflow-data-manager.js"></script>
+    <script src="dashboardscript.js"></script>
+</body>
+
+</html>
