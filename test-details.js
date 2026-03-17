@@ -1,1 +1,1 @@
-const weeklyMetricsData = localStorage.getItem('weeklyMetricsData') ? JSON.parse(localStorage.getItem('weeklyMetricsData')) : null;
+const weeklyMetricsData = null; // TODO: load from Supabase analytics data table when available

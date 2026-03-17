@@ -55,7 +55,7 @@
                 <div id="errorMessage" class="error-message">
                     <strong>Error:</strong> <span id="errorText"></span>
                 </div>
-                
+
                 <!-- Success Message -->
                 <div id="successMessage" class="success-message">
                     <strong>Success:</strong> Signing you in...
@@ -64,8 +64,8 @@
                 <div id="loginContainer">
 
                     <div class="form-container rounded-3xl p-8 md:p-10"> -->
-                        
-                        <!-- Social Sign In Options
+
+                <!-- Social Sign In Options
                         <div class="space-y-3 mb-6">
                             <button class="social-btn" onclick="signInWithGoogle()">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -93,22 +93,22 @@
                                 Continue with Apple
                             </button>
                         </div> -->
-                    <!-- </div> 
+                <!-- </div> 
                 </div> -->
-                        <!-- Divider
+                <!-- Divider
                         <div class="divider">
                             <span>OR</span>
                         </div>
                          -->
-                    <div id="loginContainer">
+                <div id="loginContainer">
 
-                        <!-- Sign In Form -->
-                        <form id="signInForm" onsubmit="handleSignIn(event)">
-                            <!-- Email Input -->
-                            <div class="input-group">
-                                <label class="input-label" for="email">Email Address</label>
-                                <div style="position: relative;">
-                                    <input type="email" id="email" name="email" class="input-field"
+                    <!-- Sign In Form -->
+                    <form id="signInForm" onsubmit="handleSignIn(event)">
+                        <!-- Email Input -->
+                        <div class="input-group">
+                            <label class="input-label" for="email">Email Address</label>
+                            <div style="position: relative;">
+                                <input type="email" id="email" name="email" class="input-field"
                                     placeholder="you@example.com" required autocomplete="email"
                                     oninput="validateEmail(this)">
                                 <span class="input-icon">📧</span>
@@ -121,15 +121,15 @@
                             <label class="input-label" for="password">Password</label>
                             <div style="position: relative;">
                                 <input type="password" id="password" name="password" class="input-field"
-                                placeholder="Enter your password" required autocomplete="current-password"
-                                minlength="6">
+                                    placeholder="Enter your password" required autocomplete="current-password"
+                                    minlength="6">
                                 <span class="input-icon">🔒</span>
                                 <span class="password-toggle" onclick="togglePassword()">
                                     <span id="eyeIcon">👁️</span>
                                 </span>
                             </div>
                         </div>
-                        
+
                         <!-- Remember Me & Forgot Password -->
                         <div class="flex items-center justify-between mb-6">
                             <label class="checkbox-container">
@@ -138,65 +138,65 @@
                             </label>
                             <a href="#" class="link text-sm">Forgot password?</a>
                         </div>
-                        
+
                         <!-- Sign In Button -->
                         <button type="submit" class="btn-primary" id="signInBtn">
                             Sign In
                         </button>
                     </form>
                 </div>
-                    
-                    <!-- SIGN UP CONTAINER -->
-                    <div id="signupContainer" class="form-container rounded-3xl p-8 md:p-10 hidden"
-                        style="margin-top:20px;">
 
-                        <h2 class="font-display text-3xl mb-6 text-center">Create Account</h2>
+                <!-- SIGN UP CONTAINER -->
+                <div id="signupContainer" class="form-container rounded-3xl p-8 md:p-10 hidden"
+                    style="margin-top:20px;">
 
-                        <div id="signupError" class="error-message">
-                            <strong>Error:</strong> <span id="signupErrorText"></span>
-                        </div>
+                    <h2 class="font-display text-3xl mb-6 text-center">Create Account</h2>
 
-                        <form id="signupForm" onsubmit="handleSignup(event)">
-
-                            <div class="input-group">
-                                <label class="input-label">Full Name</label>
-                                <input type="text" id="signupName" class="input-field" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label class="input-label">Email</label>
-                                <input type="email" id="signupEmail" class="input-field" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label class="input-label">Password</label>
-                                <input type="password" id="signupPassword" class="input-field" required minlength="6">
-                            </div>
-
-                            <button type="submit" class="btn-primary">
-                                Create Account
-                            </button>
-
-                            <p class="text-center mt-4 text-sm text-gray-400">
-                                Already have an account?
-                                <a href="#" class="link" onclick="showLogin(event)">Sign In</a>
-                            </p>
-                        </form>
+                    <div id="signupError" class="error-message">
+                        <strong>Error:</strong> <span id="signupErrorText"></span>
                     </div>
 
-                    <!-- Sign Up Link -->
-                    <p class="text-center mt-6 text-gray-400 text-sm">
-                        Don't have an account?
-                        <a href="#" class="link font-semibold" onclick="showSignup(event)">Create one free</a>
-                    </p>
+                    <form id="signupForm" onsubmit="handleSignup(event)">
 
-                    <!-- Terms & Privacy -->
-                    <p class="text-center mt-6 text-xs text-gray-500 font-mono">
-                        By signing in, you agree to our
-                        <a href="#" class="link">Terms</a> and
-                        <a href="#" class="link">Privacy Policy</a>
-                    </p>
-                
+                        <div class="input-group">
+                            <label class="input-label">Full Name</label>
+                            <input type="text" id="signupName" class="input-field" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="email" id="signupEmail" class="input-field" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Password</label>
+                            <input type="password" id="signupPassword" class="input-field" required minlength="6">
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            Create Account
+                        </button>
+
+                        <p class="text-center mt-4 text-sm text-gray-400">
+                            Already have an account?
+                            <a href="#" class="link" onclick="showLogin(event)">Sign In</a>
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Sign Up Link -->
+                <p class="text-center mt-6 text-gray-400 text-sm">
+                    Don't have an account?
+                    <a href="#" class="link font-semibold" onclick="showSignup(event)">Create one free</a>
+                </p>
+
+                <!-- Terms & Privacy -->
+                <p class="text-center mt-6 text-xs text-gray-500 font-mono">
+                    By signing in, you agree to our
+                    <a href="#" class="link">Terms</a> and
+                    <a href="#" class="link">Privacy Policy</a>
+                </p>
+
 
                 <!-- Additional Help -->
                 <div class="text-center mt-8">
@@ -207,7 +207,8 @@
             </div>
         </div>
     </div>
-    <script src="moodflow-data-manager.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
     <script src="signpagescript.js"></script>
 </body>
 

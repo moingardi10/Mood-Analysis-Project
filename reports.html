@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Reports - MoodFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboardstyle.css">
+</head>
+<body>
+<div class="animated-bg"></div><div class="grain"></div>
+<div class="content-wrapper">
+    <aside class="sidebar" id="sidebar">
+        <div class="flex items-center space-x-2 mb-12">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center"><span class="text-xl">🌊</span></div>
+            <span class="font-display text-2xl">MoodFlow</span>
+        </div>
+        <nav>
+            <a href="user-homepage.html" class="nav-item"><span class="icon">🏠</span><span>Home</span></a>
+            <a href="take-test.html"     class="nav-item"><span class="icon">📝</span><span>Take Test</span></a>
+            <a href="dashboard.html"     class="nav-item"><span class="icon">📊</span><span>Dashboard</span></a>
+            <a href="history.html"       class="nav-item"><span class="icon">🕐</span><span>Your History</span></a>
+            <a href="reports.html"       class="nav-item active"><span class="icon">📄</span><span>Your Data (Reports)</span></a>
+            <a href="profile-page.html"  class="nav-item"><span class="icon">⚙️</span><span>Settings</span></a>
+        </nav>
+    </aside>
+    <header class="top-bar">
+        <div>
+            <h1 class="text-2xl font-display">Your Data & Reports</h1>
+            <p class="text-sm text-gray-400 font-mono">Weekly MoodLens reports and data exports</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="window.location.href='take-test.html'" class="btn btn-primary">📝 New Test</button>
+            <button onclick="handleLogout()" class="btn btn-secondary">🚪 Logout</button>
+        </div>
+    </header>
+    <main class="main-content">
+
+        <!-- Week status -->
+        <div class="card animate-in mb-6">
+            <h3 class="text-xl font-bold mb-4">📅 4-Week Programme Status</h3>
+            <div id="weekStatusGrid" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                <div style="color:#94a3b8;padding:16px;">Loading...</div>
+            </div>
+            <div id="weekStatusMsg"></div>
+        </div>
+
+        <!-- Next Test Countdown Timer -->
+        <div class="card animate-in mb-6">
+            <h3 class="text-xl font-bold mb-4">⏰ Next Test Reminder</h3>
+            <div id="reminderSection">
+                <div style="color:#94a3b8;text-align:center;padding:16px;">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Report downloads -->
+        <div class="card animate-in mb-6">
+            <h3 class="text-xl font-bold mb-2">📊 MoodLens Report</h3>
+            <p class="text-sm text-gray-400 mb-6">Generated after completing all 4 weeks. Includes 11 sections: mood trends, emotional dimensions, SHAP analysis, and personalised insights.</p>
+            <div id="reportActions">
+                <div style="color:#94a3b8;padding:16px;">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Weekly summaries -->
+        <div class="card animate-in mb-6">
+            <h3 class="text-xl font-bold mb-4">📋 Weekly Summaries</h3>
+            <div id="weeklySummaryCards">
+                <div style="color:#94a3b8;padding:16px;">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Data export -->
+        <div class="card animate-in">
+            <h3 class="text-xl font-bold mb-4">💾 Export Your Data</h3>
+            <div class="space-y-3" style="display:flex;flex-direction:column;gap:12px;">
+                <button onclick="exportCSV()" class="btn btn-secondary" style="text-align:left;">
+                    📊 Export Test History as CSV
+                </button>
+                <button onclick="exportJSON()" class="btn btn-secondary" style="text-align:left;">
+                    📄 Export All Data as JSON
+                </button>
+                <button onclick="addGoogleCalendar()" class="btn btn-secondary" style="text-align:left;">
+                    📅 Add Next Test Reminder to Google Calendar
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="mobile-menu-toggle" onclick="toggleSidebar()">☰</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="dashboardscript.js"></script>
+<script>
+// API_BASE and API_KEY defined in dashboardscript.js
+let _weeks=[], _tests=[], _user=null, _countdownInterval=null;
+
+window.addEventListener('load', async()=>{
+    const sb=window.sb; if(!sb){window.location.href='signpage.html';return;}
+    const {data:{user},error}=await sb.auth.getUser(); if(error||!user){window.location.href='signpage.html';return;}
+    _user=user;
+    const [{data:weeks},{data:tests}]=await Promise.all([
+        sb.from('test_responses').select('*').eq('user_id',user.id).order('week'),
+        sb.from('test_results').select('*').eq('user_id',user.id).order('created_at')
+    ]);
+    _weeks=weeks||[]; _tests=tests||[];
+    renderWeekStatus(); renderReportActions(); renderWeeklySummaries(); renderReminder();
+});
+
+function renderWeekStatus(){
+    const cm={Stable:'#10b981',Moderate:'#f59e0b',Unstable:'#ef4444'};
+    document.getElementById('weekStatusGrid').innerHTML=[1,2,3,4].map(w=>{
+        const wd=_weeks.find(r=>r.week===w), done=!!wd, col=done?(cm[wd.prediction_label]||'#3b82f6'):'#374151';
+        return `<div style="flex:1;min-width:120px;background:${done?'#1e3a5f':'#1a2035'};border:2px solid ${done?col:'#374151'};border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:24px;">${done?'✅':w===_weeks.length+1?'🔵':'⚪'}</div>
+            <div style="color:#e2e8f0;font-weight:600;margin-top:6px;">Week ${w}</div>
+            ${done?`<div style="color:${col};font-weight:700;font-size:13px;margin-top:4px;">${wd.prediction_label}</div>
+            <div style="color:#64748b;font-size:11px;margin-top:2px;">${new Date(wd.submitted_at).toLocaleDateString()}</div>`:''}
+        </div>`;
+    }).join('');
+
+    const msg=document.getElementById('weekStatusMsg');
+    if(_weeks.length>=4){
+        msg.innerHTML=`<div style="padding:12px;background:#1e3a5f;border-radius:8px;text-align:center;color:#60a5fa;font-weight:600;">🎉 All 4 weeks complete! Your full report is ready below.</div>`;
+    } else {
+        msg.innerHTML=`<div style="color:#94a3b8;font-size:13px;text-align:center;">Complete Week ${_weeks.length+1} to continue. <a href="take-test.html" style="color:#60a5fa;text-decoration:underline;">Take test now →</a></div>`;
+    }
+}
+
+function renderReportActions(){
+    const el=document.getElementById('reportActions');
+    if(_weeks.length<4){
+        el.innerHTML=`<div style="padding:20px;background:#1a2035;border-radius:10px;text-align:center;color:#94a3b8;">
+            <div style="font-size:32px;margin-bottom:8px;">🔒</div>
+            <p>Complete all 4 weeks to unlock your full MoodLens report.</p>
+            <p style="font-size:13px;margin-top:4px;">${4-_weeks.length} week(s) remaining.</p>
+            <a href="take-test.html" style="display:inline-block;margin-top:12px;background:#3b82f6;color:white;padding:10px 24px;border-radius:8px;font-weight:600;text-decoration:none;">Take Week ${_weeks.length+1} Now</a>
+        </div>`;
+        return;
+    }
+    el.innerHTML=`<div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button onclick="clientPDF()" style="background:#3b82f6;color:white;border:none;padding:14px 24px;border-radius:10px;cursor:pointer;font-weight:600;font-size:15px;">📄 Download PDF Report</button>
+        <button onclick="flaskPDF()" style="background:#10b981;color:white;border:none;padding:14px 24px;border-radius:10px;cursor:pointer;font-weight:600;font-size:15px;">🤖 ML Report (Flask API)</button>
+        <button onclick="window.location.href='dashboard.html#moodlensReport'" style="background:#8b5cf6;color:white;border:none;padding:14px 24px;border-radius:10px;cursor:pointer;font-weight:600;font-size:15px;">👁 View Report Online</button>
+    </div>`;
+}
+
+function renderWeeklySummaries(){
+    const el=document.getElementById('weeklySummaryCards');
+    if(!_weeks.length){ el.innerHTML='<p style="color:#94a3b8;">No weekly data yet.</p>'; return; }
+    const cm={Stable:'#10b981',Moderate:'#f59e0b',Unstable:'#ef4444'};
+    el.innerHTML=_weeks.map(w=>{
+        const r=w.responses||{}, col=cm[w.prediction_label]||'#6b7280';
+        const pa=Math.round((w.pa_score||0)*100), na=Math.round((w.na_score||0)*100);
+        return `<div style="background:#1a2035;border:1px solid #1e3a5f;border-radius:12px;padding:16px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div style="font-weight:700;color:#e2e8f0;font-size:16px;">Week ${w.week}</div>
+                <span style="color:${col};font-weight:700;font-size:14px;background:${col}22;padding:4px 12px;border-radius:20px;">${w.prediction_label||'—'}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+                <div style="text-align:center;background:#131a2b;border-radius:8px;padding:10px;">
+                    <div style="font-size:18px;font-weight:700;color:#3b82f6;">${pa}%</div>
+                    <div style="font-size:11px;color:#94a3b8;">Positive Affect</div>
+                </div>
+                <div style="text-align:center;background:#131a2b;border-radius:8px;padding:10px;">
+                    <div style="font-size:18px;font-weight:700;color:#ef4444;">${na}%</div>
+                    <div style="font-size:11px;color:#94a3b8;">Negative Affect</div>
+                </div>
+                <div style="text-align:center;background:#131a2b;border-radius:8px;padding:10px;">
+                    <div style="font-size:18px;font-weight:700;color:${(w.pa_score||0)>=(w.na_score||0)?'#10b981':'#ef4444'};">${pa-na>0?'+':''}${pa-na}%</div>
+                    <div style="font-size:11px;color:#94a3b8;">Balance</div>
+                </div>
+                <div style="text-align:center;background:#131a2b;border-radius:8px;padding:10px;">
+                    <div style="font-size:18px;font-weight:700;color:#f59e0b;">${r['Daily_Stress']||'—'}/5</div>
+                    <div style="font-size:11px;color:#94a3b8;">Stress</div>
+                </div>
+            </div>
+            <div style="font-size:12px;color:#475569;margin-top:8px;">Submitted: ${new Date(w.submitted_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+        </div>`;
+    }).join('');
+}
+
+async function clientPDF(){
+    // Trigger from dashboardscript which has the full report renderer
+    window.location.href='dashboard.html#moodlensReport';
+}
+async function flaskPDF(){
+    const btn=event.target; btn.textContent='⏳ Generating...'; btn.disabled=true;
+    try {
+        const payload={weeks:_weeks.map(w=>({userId:_user.email,date:w.submitted_at,answers:w.responses}))};
+        const resp=await fetch(`${API_BASE}/predict_report_weekly`,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY},body:JSON.stringify(payload)});
+        if(!resp.ok) throw new Error('HTTP '+resp.status);
+        const blob=await resp.blob(),a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);a.download='moodlens-ml-report.pdf';a.click();URL.revokeObjectURL(a.href);
+    } catch(e){ alert('Flask error: '+e.message+'\n\nMake sure Flask is running on localhost:5000'); }
+    finally{ btn.textContent='🤖 ML Report (Flask API)';btn.disabled=false; }
+}
+async function exportCSV(){
+    const rows=[['#','Date','Time','Score','Emotional State','ML Label','Stress','Duration']];
+    [..._tests].reverse().forEach((t,i)=>{
+        const d=new Date(t.created_at);
+        rows.push([i+1,d.toLocaleDateString(),d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),parseFloat(t.average_score).toFixed(2),t.emotional_state||'',t.mood_classification||'',t.stress_level||'',t.duration_seconds?Math.round(t.duration_seconds/60)+'m':'']);
+    });
+    const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='moodflow-history.csv';a.click();
+}
+async function exportJSON(){
+    const data={exportDate:new Date().toISOString(),user:{email:_user.email},testResults:_tests,weeklyResponses:_weeks};
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='moodflow-full-export.json';a.click();
+}
+// ── Countdown Timer ──────────────────────────────────────
+function renderReminder() {
+    const el = document.getElementById('reminderSection');
+    if (!el) return;
+
+    const latest = _weeks.length ? _weeks[_weeks.length - 1] : null;
+    const weekNum = latest ? Math.min(latest.week + 1, 4) : 1;
+
+    // All 4 weeks done
+    if (_weeks.length >= 4) {
+        el.innerHTML = `
+            <div style="background:#1e3a5f;border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:40px;margin-bottom:8px;">🎉</div>
+                <div style="color:#10b981;font-size:18px;font-weight:700;margin-bottom:6px;">All 4 Weeks Complete!</div>
+                <div style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Your full MoodLens report is ready to download.</div>
+                <button onclick="window.location.href='dashboard.html#moodlensReport'"
+                    style="background:#10b981;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;">
+                    📊 View Full Report
+                </button>
+            </div>`;
+        return;
+    }
+
+    // Calculate next test date
+    const nextDate = latest
+        ? new Date(new Date(latest.submitted_at).getTime() + 7 * 24 * 60 * 60 * 1000)
+        : null;
+
+    const now = new Date();
+    const available = !nextDate || now >= nextDate;
+
+    if (!latest) {
+        // Never taken a test
+        el.innerHTML = `
+            <div style="background:#1a2035;border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:40px;margin-bottom:8px;">🚀</div>
+                <div style="color:#60a5fa;font-size:18px;font-weight:700;margin-bottom:6px;">Ready for Week 1!</div>
+                <div style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Take your first test to start tracking your mood.</div>
+                <button onclick="window.location.href='take-test.html'"
+                    style="background:#3b82f6;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;">
+                    📝 Start Week 1 Now
+                </button>
+            </div>`;
+        return;
+    }
+
+    if (available) {
+        // Test available now
+        el.innerHTML = `
+            <div style="background:#1e3a5f;border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:40px;margin-bottom:8px;">✅</div>
+                <div style="color:#10b981;font-size:18px;font-weight:700;margin-bottom:6px;">Week ${weekNum} Available Now!</div>
+                <div style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Your next test is ready. Takes about 5 minutes.</div>
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                    <button onclick="window.location.href='take-test.html'"
+                        style="background:#10b981;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;">
+                        📝 Take Week ${weekNum} Now
+                    </button>
+                    <button onclick="openGoogleCalendar()"
+                        style="background:#4285f4;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;">
+                        📅 Add to Google Calendar
+                    </button>
+                </div>
+            </div>`;
+        return;
+    }
+
+    // Countdown to next test
+    el.innerHTML = `
+        <div style="background:#1a2035;border-radius:12px;padding:24px;">
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="color:#94a3b8;font-size:13px;margin-bottom:4px;">WEEK ${weekNum} AVAILABLE IN</div>
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px;">
+                    <div style="background:#131a2b;border:2px solid #1e3a5f;border-radius:12px;padding:16px 20px;min-width:80px;text-align:center;">
+                        <div id="rDays" style="font-size:36px;font-weight:800;color:#60a5fa;line-height:1;">0</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:1px;">DAYS</div>
+                    </div>
+                    <div style="background:#131a2b;border:2px solid #1e3a5f;border-radius:12px;padding:16px 20px;min-width:80px;text-align:center;">
+                        <div id="rHours" style="font-size:36px;font-weight:800;color:#60a5fa;line-height:1;">0</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:1px;">HOURS</div>
+                    </div>
+                    <div style="background:#131a2b;border:2px solid #1e3a5f;border-radius:12px;padding:16px 20px;min-width:80px;text-align:center;">
+                        <div id="rMinutes" style="font-size:36px;font-weight:800;color:#60a5fa;line-height:1;">0</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:1px;">MINUTES</div>
+                    </div>
+                    <div style="background:#131a2b;border:2px solid #1e3a5f;border-radius:12px;padding:16px 20px;min-width:80px;text-align:center;">
+                        <div id="rSeconds" style="font-size:36px;font-weight:800;color:#60a5fa;line-height:1;">0</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:1px;">SECONDS</div>
+                    </div>
+                </div>
+                <div style="color:#64748b;font-size:12px;margin-top:12px;">
+                    Next available: <strong style="color:#94a3b8;">${nextDate.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})} at 9:00 AM</strong>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                <button onclick="openGoogleCalendar()"
+                    style="background:#4285f4;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                    Add to Google Calendar
+                </button>
+                <button onclick="copyReminder('${nextDate.toLocaleDateString()}')"
+                    style="background:#374151;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;">
+                    📋 Copy Reminder Text
+                </button>
+            </div>
+        </div>`;
+
+    // Start the live countdown
+    if (_countdownInterval) clearInterval(_countdownInterval);
+
+    function tick() {
+        const diff = nextDate - new Date();
+        if (diff <= 0) {
+            clearInterval(_countdownInterval);
+            renderReminder(); // refresh to show "available now"
+            return;
+        }
+        const d = el => document.getElementById(el);
+        if (d('rDays'))    d('rDays').textContent    = Math.floor(diff / (1000*60*60*24));
+        if (d('rHours'))   d('rHours').textContent   = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+        if (d('rMinutes')) d('rMinutes').textContent = Math.floor((diff % (1000*60*60)) / (1000*60));
+        if (d('rSeconds')) d('rSeconds').textContent = Math.floor((diff % (1000*60)) / 1000);
+    }
+    tick();
+    _countdownInterval = setInterval(tick, 1000);
+}
+
+function openGoogleCalendar() {
+    const latest = _weeks.length ? _weeks[_weeks.length - 1] : null;
+    const nextDate = latest
+        ? new Date(new Date(latest.submitted_at).getTime() + 7*24*60*60*1000)
+        : new Date(Date.now() + 7*24*60*60*1000);
+    const weekNum = latest ? Math.min(latest.week + 1, 4) : 1;
+    const pad = n => String(n).padStart(2,'0');
+    const fmt = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T090000`;
+    const start = new Date(nextDate); start.setHours(9,0,0,0);
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE`
+        + `&text=${encodeURIComponent('MoodFlow — Week ' + weekNum + ' Mood Test')}`
+        + `&dates=${fmt(start)}/${fmt(start).replace('T090000','T093000')}`
+        + `&details=${encodeURIComponent('Time for your weekly MoodFlow mood assessment.\nTakes about 5 minutes.\n\nOpen: http://localhost:3000/take-test.html')}`
+        + `&sf=true&output=xml`;
+    window.open(url, '_blank');
+}
+
+// Keep old name working too
+async function addGoogleCalendar() { openGoogleCalendar(); }
+
+function copyReminder(dateStr) {
+    const weekNum = _weeks.length ? Math.min(_weeks.length + 1, 4) : 1;
+    const text = `📅 MoodFlow Reminder\n\nWeek ${weekNum} mood test is due on ${dateStr}.\nOpen: http://localhost:3000/take-test.html\n\nTakes about 5 minutes.`;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Reminder text copied to clipboard!');
+    }).catch(() => {
+        prompt('Copy this reminder:', text);
+    });
+}
+function handleLogout(){if(!confirm('Log out?'))return;window.sb?.auth.signOut();window.location.href='signpage.html';}
+function toggleSidebar(){document.getElementById('sidebar')?.classList.toggle('mobile-open');}
+</script>
+</body></html>

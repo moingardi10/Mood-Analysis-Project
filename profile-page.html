@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - MoodFlow</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="profilepagestyle.css">
 </head>
+
 <body>
     <div class="animated-bg"></div>
     <div class="grain"></div>
@@ -16,7 +20,8 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
             <div class="flex items-center space-x-2 mb-12">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center">
                     <span class="text-xl">🌊</span>
                 </div>
                 <span class="font-display text-2xl">MoodFlow</span>
@@ -27,19 +32,19 @@
                     <span class="icon">🏠</span>
                     <span>Home</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="take-test.html" class="nav-item">
                     <span class="icon">📝</span>
                     <span>Take Test</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="dashboard.html" class="nav-item">
                     <span class="icon">📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="history.html" class="nav-item">
                     <span class="icon">🕐</span>
                     <span>Your History</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="reports.html" class="nav-item">
                     <span class="icon">📄</span>
                     <span>Your Data (Reports)</span>
                 </a>
@@ -47,7 +52,7 @@
                     <span class="icon">👤</span>
                     <span>Profile</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="profile-page.html" class="nav-item">
                     <span class="icon">⚙️</span>
                     <span>Settings</span>
                 </a>
@@ -65,7 +70,7 @@
                 <button onclick="window.location.href='user-homepage.html'" class="btn btn-secondary">
                     🏠 Home
                 </button>
-                <button onclick="showLogoutModal()" class="btn btn-danger">
+                <button onclick="handleLogout()" class="logout-btn">
                     🚪 Logout
                 </button>
             </div>
@@ -79,26 +84,27 @@
                     MG
                     <div class="avatar-edit-badge">📷</div>
                 </div>
-                <input type="file" id="avatarInput" style="display: none;" accept="image/*" onchange="handleAvatarChange(event)">
-                
+                <input type="file" id="avatarInput" style="display: none;" accept="image/*"
+                    onchange="handleAvatarChange(event)">
+
                 <h2 class="text-3xl font-display mb-2" id="userName"></h2>
                 <p class="text-gray-400 mb-4" id="userEmail"></p>
 
                 <div class="stats-grid mt-8">
                     <div class="stat-item">
-                        <div class="stat-number">47</div>
+                        <div class="stat-number">–</div>
                         <div class="stat-label">Tests Taken</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">12</div>
+                        <div class="stat-number">–</div>
                         <div class="stat-label">Day Streak</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">8.2</div>
+                        <div class="stat-number">–</div>
                         <div class="stat-label">Avg Mood</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">156</div>
+                        <div class="stat-number">–</div>
                         <div class="stat-label">Days Active</div>
                     </div>
                 </div>
@@ -141,7 +147,8 @@
 
                         <div class="form-group">
                             <label class="form-label">Bio</label>
-                            <textarea class="form-input" rows="3" id="bio" placeholder="Tell us about yourself..."></textarea>
+                            <textarea class="form-input" rows="3" id="bio"
+                                placeholder="Tell us about yourself..."></textarea>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-full">
@@ -152,7 +159,7 @@
 
                 <!-- Account Settings -->
                 <div class="space-y-8">
-                    
+
 
                     <!-- Privacy Settings -->
                     <div class="card animate-in">
@@ -206,7 +213,7 @@
                         </div>
 
                         <button class="btn btn-secondary w-full mt-4" onclick="showPasswordModal()">
-                             Change Password
+                            Change Password
                         </button>
                     </div>
 
@@ -221,7 +228,8 @@
                             <button class="btn btn-secondary w-full" onclick="exportData()">
                                 📥 Export My Data
                             </button>
-                            <button class="btn btn-secondary w-full" onclick="window.location.href='user-homepage.html'">
+                            <button class="btn btn-secondary w-full"
+                                onclick="window.location.href='user-homepage.html'">
                                 🏠 Go to Homepage
                             </button>
                             <button class="btn btn-danger w-full" onclick="showDeleteModal()">
@@ -235,7 +243,7 @@
             <!-- Member Since -->
             <div class="card animate-in mt-8 text-center">
                 <p class="text-gray-400 font-mono text-sm">
-                    Member since September 15, 2023 • 156 days of emotional growth
+                    <span class="member-since">Loading...</span>
                 </p>
             </div>
         </main>
@@ -249,13 +257,13 @@
                 <div class="text-6xl mb-4">👋</div>
                 <h3 class="text-2xl font-display mb-3">Are you sure you want to logout?</h3>
                 <p class="text-gray-400 mb-6">We'll miss you! Your data will be saved securely.</p>
-                
+
                 <div class="flex gap-3">
                     <button class="btn btn-secondary flex-1" onclick="closeModal('logoutModal')">
                         Cancel
                     </button>
-                    <button class="btn btn-danger flex-1" onclick="handleLogout()">
-                        Logout
+                    <button onclick="handleLogout()" class="logout-btn">
+                        🚪 Logout
                     </button>
                 </div>
             </div>
@@ -269,8 +277,9 @@
             <div class="text-center">
                 <div class="text-6xl mb-4"></div>
                 <h3 class="text-2xl font-display mb-3 text-red-400">Delete Account?</h3>
-                <p class="text-gray-400 mb-4">This action cannot be undone. All your data will be permanently deleted.</p>
-                
+                <p class="text-gray-400 mb-4">This action cannot be undone. All your data will be permanently deleted.
+                </p>
+
                 <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-left">
                     <p class="text-sm text-gray-300 mb-2">You will lose:</p>
                     <ul class="text-sm text-gray-400 space-y-1">
@@ -282,7 +291,7 @@
                 </div>
 
                 <input type="text" class="form-input mb-4" placeholder="Type 'DELETE' to confirm" id="deleteConfirm">
-                
+
                 <div class="flex gap-3">
                     <button class="btn btn-secondary flex-1" onclick="closeModal('deleteModal')">
                         Cancel
@@ -304,7 +313,7 @@
                     <div class="text-5xl mb-3">🔑</div>
                     <h3 class="text-2xl font-display">Change Password</h3>
                 </div>
-                
+
                 <form onsubmit="changePassword(event)">
                     <div class="form-group">
                         <label class="form-label">Current Password</label>
@@ -313,12 +322,14 @@
 
                     <div class="form-group">
                         <label class="form-label">New Password</label>
-                        <input type="password" class="form-input" placeholder="Enter new password" minlength="8" required>
+                        <input type="password" class="form-input" placeholder="Enter new password" minlength="8"
+                            required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-input" placeholder="Confirm new password" minlength="8" required>
+                        <input type="password" class="form-input" placeholder="Confirm new password" minlength="8"
+                            required>
                     </div>
 
                     <div class="flex gap-3">
@@ -333,7 +344,9 @@
             </div>
         </div>
     </div>
-    <script src="moodflow-data-manager.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
     <script src="profilepagescript.js"></script>
 </body>
+
 </html>

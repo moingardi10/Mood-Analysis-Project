@@ -7,18 +7,18 @@
  */
 
 const DataCollectionSystem = {
-    
+
     // ========================
     // SESSION MANAGEMENT
     // ========================
     session: {
         // Generate unique session ID for each user/teacher
-        generateSessionId: function() {
+        generateSessionId: function () {
             return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         },
-        
+
         // Start new session for a user
-        startSession: function(userData) {
+        startSession: function (userData) {
             const sessionId = this.generateSessionId();
             const session = {
                 sessionId: sessionId,
@@ -28,14 +28,15 @@ const DataCollectionSystem = {
                 screenResolution: `${window.screen.width}x${window.screen.height}`,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
             };
-            
-            localStorage.setItem('current_session', JSON.stringify(session));
+
+            // TODO: Save session to Supabase or server-side state
+            this.currentSession = session;
             return sessionId;
         },
-        
-        getCurrentSession: function() {
-            const session = localStorage.getItem('current_session');
-            return session ? JSON.parse(session) : null;
+
+        getCurrentSession: function () {
+            // TODO: Read session from Supabase if needed
+            return this.currentSession || null;
         }
     },
 
@@ -44,9 +45,9 @@ const DataCollectionSystem = {
     // ========================
     responses: {
         // Store each individual question response with metadata
-        recordResponse: function(questionData) {
+        recordResponse: function (questionData) {
             const responses = this.getAll();
-            
+
             const responseRecord = {
                 responseId: 'resp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 sessionId: DataCollectionSystem.session.getCurrentSession()?.sessionId,
@@ -60,19 +61,19 @@ const DataCollectionSystem = {
                 timeSpentSeconds: questionData.timeSpent,
                 questionIndex: questionData.questionIndex
             };
-            
+
             responses.push(responseRecord);
-            localStorage.setItem('moodflow_all_responses', JSON.stringify(responses));
-            
+            this._responses = responses;
+
             return responseRecord;
         },
-        
-        getAll: function() {
-            const responses = localStorage.getItem('moodflow_all_responses');
-            return responses ? JSON.parse(responses) : [];
+
+        getAll: function () {
+            // TODO: Use Supabase responses table
+            return this._responses || [];
         },
-        
-        getBySession: function(sessionId) {
+
+        getBySession: function (sessionId) {
             return this.getAll().filter(r => r.sessionId === sessionId);
         }
     },
@@ -82,16 +83,16 @@ const DataCollectionSystem = {
     // ========================
     tests: {
         // Store complete test with all details
-        saveCompleteTest: function(testData) {
+        saveCompleteTest: function (testData) {
             const allTests = this.getAll();
-            
+
             const session = DataCollectionSystem.session.getCurrentSession();
-            
+
             const completeTest = {
                 // Identification
                 testId: 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 sessionId: session?.sessionId,
-                
+
                 // User Information
                 userInfo: {
                     userId: testData.userId || session?.userData?.userId,
@@ -103,7 +104,7 @@ const DataCollectionSystem = {
                     age: testData.age || session?.userData?.age,
                     gender: testData.gender || session?.userData?.gender
                 },
-                
+
                 // Test Timing
                 timing: {
                     startTime: testData.startTime,
@@ -114,28 +115,42 @@ const DataCollectionSystem = {
                     dayOfWeek: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
                     timeOfDay: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                 },
-                
+
                 // All Answers (Complete Question-by-Question)
-                answers: testData.answers.map((answer, index) => ({
-                    questionNumber: index + 1,
-                    questionId: testData.questions[index].id,
-                    questionText: testData.questions[index].question,
-                    category: testData.questions[index].category,
-                    selectedValue: answer,
-                    selectedOption: testData.questions[index].options.find(o => o.value === answer),
-                    timeSpentOnQuestion: testData.timePerQuestion ? testData.timePerQuestion[index] : null
-                })),
-                
+                // answers: testData.answers.map((answer, index) => ({
+                //     questionNumber: index + 1,
+                //     questionId: testData.questions[index].id,
+                //     questionText: testData.questions[index].question,
+                //     category: testData.questions[index].category,
+                //     selectedValue: answer,
+                //     selectedOption: testData.questions[index].options.find(o => o.value === answer),
+                //     timeSpentOnQuestion: testData.timePerQuestion ? testData.timePerQuestion[index] : null
+                // })),
+                answers: Object.fromEntries(
+                    testData.answers.map((answer, index) => [
+                        "Q" + (index + 1),
+                        {
+                            questionNumber: index + 1,
+                            questionId: testData.questions[index].id,
+                            questionText: testData.questions[index].question,
+                            category: testData.questions[index].category,
+                            selectedValue: answer,
+                            selectedOption: testData.questions[index].options.find(o => o.value === answer),
+                            timeSpentOnQuestion: testData.timePerQuestion ? testData.timePerQuestion[index] : null
+                        }
+                    ])
+                ),
+
                 // Calculated Scores
                 scores: {
                     totalScore: testData.totalScore,
                     averageScore: testData.averageScore,
                     percentageScore: ((testData.totalScore / (testData.answers.length * 5)) * 100).toFixed(1),
-                    
+
                     // Category-wise scores
                     categoryScores: this.calculateCategoryScores(testData.answers, testData.questions)
                 },
-                
+
                 // Analysis Results
                 analysis: {
                     emotionalState: testData.emotionalState,
@@ -144,7 +159,7 @@ const DataCollectionSystem = {
                     wellbeing: testData.wellbeing,
                     moodClassification: this.classifyMood(testData.averageScore)
                 },
-                
+
                 // Device & Browser Info
                 metadata: {
                     userAgent: navigator.userAgent,
@@ -154,39 +169,39 @@ const DataCollectionSystem = {
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     language: navigator.language
                 },
-                
+
                 // Status
                 status: 'COMPLETED',
                 version: '1.0'
             };
-            
+
             allTests.push(completeTest);
-            localStorage.setItem('moodflow_research_data', JSON.stringify(allTests));
-            
+            this._researchData = allTests;
+
             console.log('✓ Test data saved for research:', completeTest.testId);
             return completeTest;
         },
-        
-        getAll: function() {
-            const tests = localStorage.getItem('moodflow_research_data');
-            return tests ? JSON.parse(tests) : [];
+
+        getAll: function () {
+            // TODO: Use Supabase research test storage instead
+            return this._researchData || [];
         },
-        
-        getByUser: function(userId) {
+
+        getByUser: function (userId) {
             return this.getAll().filter(t => t.userInfo.userId === userId);
         },
-        
-        getByDateRange: function(startDate, endDate) {
+
+        getByDateRange: function (startDate, endDate) {
             const tests = this.getAll();
             return tests.filter(t => {
                 const testDate = new Date(t.timing.dateCompleted);
                 return testDate >= new Date(startDate) && testDate <= new Date(endDate);
             });
         },
-        
-        calculateCategoryScores: function(answers, questions) {
+
+        calculateCategoryScores: function (answers, questions) {
             const categories = {};
-            
+
             questions.forEach((q, index) => {
                 const category = q.category;
                 if (!categories[category]) {
@@ -196,7 +211,7 @@ const DataCollectionSystem = {
                         questions: []
                     };
                 }
-                
+
                 categories[category].totalScore += answers[index];
                 categories[category].count += 1;
                 categories[category].questions.push({
@@ -205,24 +220,24 @@ const DataCollectionSystem = {
                     score: answers[index]
                 });
             });
-            
+
             // Calculate averages
             Object.keys(categories).forEach(cat => {
                 categories[cat].average = (categories[cat].totalScore / categories[cat].count).toFixed(2);
             });
-            
+
             return categories;
         },
-        
-        classifyMood: function(score) {
+
+        classifyMood: function (score) {
             if (score >= 8) return 'Very Positive';
             if (score >= 6.5) return 'Positive';
             if (score >= 5) return 'Neutral';
             if (score >= 3.5) return 'Somewhat Negative';
             return 'Negative';
         },
-        
-        getBrowserInfo: function() {
+
+        getBrowserInfo: function () {
             const ua = navigator.userAgent;
             if (ua.indexOf('Chrome') > -1) return 'Chrome';
             if (ua.indexOf('Firefox') > -1) return 'Firefox';
@@ -230,8 +245,8 @@ const DataCollectionSystem = {
             if (ua.indexOf('Edge') > -1) return 'Edge';
             return 'Other';
         },
-        
-        getDeviceInfo: function() {
+
+        getDeviceInfo: function () {
             const ua = navigator.userAgent;
             if (/mobile/i.test(ua)) return 'Mobile';
             if (/tablet/i.test(ua)) return 'Tablet';
@@ -244,7 +259,7 @@ const DataCollectionSystem = {
     // ========================
     export: {
         // Export all data as JSON (for backup/analysis)
-        exportAllJSON: function() {
+        exportAllJSON: function () {
             const allData = {
                 exportInfo: {
                     exportDate: new Date().toISOString(),
@@ -255,25 +270,25 @@ const DataCollectionSystem = {
                 tests: DataCollectionSystem.tests.getAll(),
                 responses: DataCollectionSystem.responses.getAll()
             };
-            
+
             return JSON.stringify(allData, null, 2);
         },
-        
+
         // Export as CSV for Excel/Google Sheets analysis
-        exportTestsCSV: function() {
+        exportTestsCSV: function () {
             const tests = DataCollectionSystem.tests.getAll();
-            
+
             if (tests.length === 0) {
                 return 'No data to export';
             }
-            
+
             // Headers
             let csv = 'Test ID,Session ID,User ID,User Name,Email,Role,Department,Institution,Age,Gender,';
             csv += 'Date Completed,Day of Week,Time of Day,Duration (minutes),';
             csv += 'Total Score,Average Score,Percentage Score,';
             csv += 'Emotional State,Stress Level,Energy Level,Wellbeing,Mood Classification,';
             csv += 'Browser,Device,Timezone\n';
-            
+
             // Data rows
             tests.forEach(test => {
                 csv += `"${test.testId}",`;
@@ -302,25 +317,25 @@ const DataCollectionSystem = {
                 csv += `"${test.metadata.device}",`;
                 csv += `"${test.metadata.timezone}"\n`;
             });
-            
+
             return csv;
         },
-        
+
         // Export detailed responses (question-by-question)
-        exportDetailedResponsesCSV: function() {
+        exportDetailedResponsesCSV: function () {
             const tests = DataCollectionSystem.tests.getAll();
-            
+
             if (tests.length === 0) {
                 return 'No data to export';
             }
-            
+
             // Headers
             let csv = 'Test ID,User ID,User Name,Email,Role,Institution,Question Number,Question ID,Question Text,Category,';
             csv += 'Selected Option Number,Selected Value,Selected Label,Selected Description,Date Completed\n';
-            
+
             // Data rows
             tests.forEach(test => {
-                test.answers.forEach(answer => {
+                Object.values(test.answers).forEach(answer => {
                     csv += `"${test.testId}",`;
                     csv += `"${test.userInfo.userId || 'N/A'}",`;
                     csv += `"${test.userInfo.userName || 'N/A'}",`;
@@ -338,18 +353,18 @@ const DataCollectionSystem = {
                     csv += `"${test.timing.dateCompleted}"\n`;
                 });
             });
-            
+
             return csv;
         },
-        
+
         // Export simple Q&A format (EXACTLY what you asked for: Q1→3, Q2→1, etc.)
-        exportSimpleQAFormat: function() {
+        exportSimpleQAFormat: function () {
             const tests = DataCollectionSystem.tests.getAll();
-            
+
             if (tests.length === 0) {
                 return 'No data to export';
             }
-            
+
             // Headers - Q1, Q2, Q3... Q20
             let csv = 'Test ID,User Name,Email,Role,Institution,Date,';
             const maxQuestions = 20; // Assuming 20 questions
@@ -357,7 +372,7 @@ const DataCollectionSystem = {
                 csv += `Q${i},`;
             }
             csv += 'Total Score,Average Score\n';
-            
+
             // Data rows
             tests.forEach(test => {
                 csv += `"${test.testId}",`;
@@ -366,30 +381,30 @@ const DataCollectionSystem = {
                 csv += `"${test.userInfo.userRole || 'N/A'}",`;
                 csv += `"${test.userInfo.institution || 'N/A'}",`;
                 csv += `"${new Date(test.timing.dateCompleted).toLocaleDateString()}",`;
-                
+
                 // Add each answer (Q1→3, Q2→1, etc.)
                 for (let i = 1; i <= maxQuestions; i++) {
-                    const answer = test.answers.find(a => a.questionNumber === i);
+                    const answer = test.answers["Q" + i];
                     csv += answer ? `${answer.selectedValue},` : 'N/A,';
                 }
-                
+
                 csv += `${test.scores.totalScore},`;
                 csv += `${test.scores.averageScore}\n`;
             });
-            
+
             return csv;
         },
-        
+
         // Export category analysis
-        exportCategoryAnalysisCSV: function() {
+        exportCategoryAnalysisCSV: function () {
             const tests = DataCollectionSystem.tests.getAll();
-            
+
             if (tests.length === 0) {
                 return 'No data to export';
             }
-            
+
             let csv = 'Test ID,User ID,User Name,Category,Average Score,Total Score,Question Count,Date\n';
-            
+
             tests.forEach(test => {
                 Object.keys(test.scores.categoryScores).forEach(category => {
                     const catData = test.scores.categoryScores[category];
@@ -403,12 +418,12 @@ const DataCollectionSystem = {
                     csv += `"${test.timing.dateCompleted}"\n`;
                 });
             });
-            
+
             return csv;
         },
-        
+
         // Download file helper
-        downloadFile: function(content, filename, type) {
+        downloadFile: function (content, filename, type) {
             const blob = new Blob([content], { type: type });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -419,51 +434,51 @@ const DataCollectionSystem = {
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         },
-        
+
         // Easy download functions
-        downloadAllData: function() {
+        downloadAllData: function () {
             const json = this.exportAllJSON();
             const timestamp = new Date().toISOString().split('T')[0];
             this.downloadFile(json, `moodflow-complete-data-${timestamp}.json`, 'application/json');
             alert('✓ Complete data exported as JSON');
         },
-        
-        downloadTestSummary: function() {
+
+        downloadTestSummary: function () {
             const csv = this.exportTestsCSV();
             const timestamp = new Date().toISOString().split('T')[0];
             this.downloadFile(csv, `moodflow-test-summary-${timestamp}.csv`, 'text/csv');
             alert('✓ Test summary exported as CSV');
         },
-        
-        downloadDetailedResponses: function() {
+
+        downloadDetailedResponses: function () {
             const csv = this.exportDetailedResponsesCSV();
             const timestamp = new Date().toISOString().split('T')[0];
             this.downloadFile(csv, `moodflow-detailed-responses-${timestamp}.csv`, 'text/csv');
             alert('✓ Detailed responses exported as CSV');
         },
-        
-        downloadSimpleQA: function() {
+
+        downloadSimpleQA: function () {
             const csv = this.exportSimpleQAFormat();
             const timestamp = new Date().toISOString().split('T')[0];
             this.downloadFile(csv, `moodflow-simple-qa-${timestamp}.csv`, 'text/csv');
             alert('✓ Simple Q&A format exported (Q1→3, Q2→1, etc.)');
         },
-        
-        downloadCategoryAnalysis: function() {
+
+        downloadCategoryAnalysis: function () {
             const csv = this.exportCategoryAnalysisCSV();
             const timestamp = new Date().toISOString().split('T')[0];
             this.downloadFile(csv, `moodflow-category-analysis-${timestamp}.csv`, 'text/csv');
             alert('✓ Category analysis exported as CSV');
         },
-        
+
         // Export everything at once
-        downloadAllFormats: function() {
+        downloadAllFormats: function () {
             this.downloadAllData();
             setTimeout(() => this.downloadTestSummary(), 500);
             setTimeout(() => this.downloadDetailedResponses(), 1000);
             setTimeout(() => this.downloadSimpleQA(), 1500);
             setTimeout(() => this.downloadCategoryAnalysis(), 2000);
-            
+
             setTimeout(() => {
                 alert(`✓ All data exported!\n\nFiles downloaded:\n- Complete JSON backup\n- Test summary CSV\n- Detailed responses CSV\n- Simple Q&A format CSV (Q1→3, Q2→1...)\n- Category analysis CSV`);
             }, 2500);
@@ -474,33 +489,33 @@ const DataCollectionSystem = {
     // STATISTICS & REPORTING
     // ========================
     stats: {
-        getTotalTests: function() {
+        getTotalTests: function () {
             return DataCollectionSystem.tests.getAll().length;
         },
-        
-        getTotalUsers: function() {
+
+        getTotalUsers: function () {
             const tests = DataCollectionSystem.tests.getAll();
             const uniqueUsers = new Set(tests.map(t => t.userInfo.userId).filter(id => id));
             return uniqueUsers.size;
         },
-        
-        getAverageCompletionTime: function() {
+
+        getAverageCompletionTime: function () {
             const tests = DataCollectionSystem.tests.getAll();
             if (tests.length === 0) return 0;
-            
+
             const totalMinutes = tests.reduce((sum, t) => sum + t.timing.totalDurationMinutes, 0);
             return (totalMinutes / tests.length).toFixed(1);
         },
-        
-        getOverallAverageScore: function() {
+
+        getOverallAverageScore: function () {
             const tests = DataCollectionSystem.tests.getAll();
             if (tests.length === 0) return 0;
-            
+
             const totalScore = tests.reduce((sum, t) => sum + parseFloat(t.scores.averageScore), 0);
             return (totalScore / tests.length).toFixed(2);
         },
-        
-        getMoodDistribution: function() {
+
+        getMoodDistribution: function () {
             const tests = DataCollectionSystem.tests.getAll();
             const distribution = {
                 'Very Positive': 0,
@@ -509,14 +524,14 @@ const DataCollectionSystem = {
                 'Somewhat Negative': 0,
                 'Negative': 0
             };
-            
+
             tests.forEach(t => {
                 const mood = t.analysis.moodClassification;
                 if (distribution.hasOwnProperty(mood)) {
                     distribution[mood]++;
                 }
             });
-            
+
             return distribution;
         }
     },
@@ -526,28 +541,28 @@ const DataCollectionSystem = {
     // ========================
     management: {
         // Clear all research data (with confirmation)
-        clearAllData: function() {
+        clearAllData: function () {
             const count = DataCollectionSystem.tests.getAll().length;
-            
+
             if (confirm(`⚠️ WARNING: This will permanently delete all ${count} test records.\n\nAre you sure? This cannot be undone!`)) {
                 if (confirm('FINAL CONFIRMATION: Delete all research data?')) {
-                    localStorage.removeItem('moodflow_research_data');
-                    localStorage.removeItem('moodflow_all_responses');
-                    localStorage.removeItem('current_session');
+                    this._researchData = [];
+                    this.responses._responses = [];
+                    this.session.currentSession = null;
                     alert('✓ All research data has been cleared');
                     return true;
                 }
             }
             return false;
         },
-        
+
         // Import data from JSON file
-        importData: function(jsonData) {
+        importData: function (jsonData) {
             try {
                 const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-                
+
                 if (data.tests && Array.isArray(data.tests)) {
-                    localStorage.setItem('moodflow_research_data', JSON.stringify(data.tests));
+                    this._researchData = data.tests;
                     alert(`✓ Imported ${data.tests.length} test records`);
                     return true;
                 }
@@ -556,16 +571,11 @@ const DataCollectionSystem = {
                 return false;
             }
         },
-        
+
         // Get storage size
-        getStorageSize: function() {
-            let total = 0;
-            for (let key in localStorage) {
-                if (localStorage.hasOwnProperty(key)) {
-                    total += localStorage[key].length + key.length;
-                }
-            }
-            return (total / 1024).toFixed(2) + ' KB';
+        getStorageSize: function () {
+            // Data is now in-memory and not persisted to localStorage
+            return 'N/A';
         }
     }
 };

@@ -6,6 +6,17 @@
  * NO SAMPLE DATA - Everything is calculated from actual user actions
  */
 
+const MoodFlowDataCache = {
+    userId: null,
+    profile: null,
+    tests: [],
+    moods: [],
+    achievements: [],
+    preferences: {},
+    subscription: null,
+    statsCache: {}
+};
+
 const MoodFlowData = {
     
     // ========================
@@ -13,17 +24,15 @@ const MoodFlowData = {
     // ========================
     user: {
         getId: function() {
-            let userId = localStorage.getItem('moodflow_user_id');
-            if (!userId) {
-                userId = 'user_' + Date.now();
-                localStorage.setItem('moodflow_user_id', userId);
+            if (!MoodFlowDataCache.userId) {
+                MoodFlowDataCache.userId = 'user_' + Date.now();
             }
-            return userId;
+            return MoodFlowDataCache.userId;
         },
         
         getProfile: function() {
-            const profile = localStorage.getItem('moodflow_user_profile');
-            return profile ? JSON.parse(profile) : {
+            // TODO: Use Supabase user profile table
+            return MoodFlowDataCache.profile || {
                 fullName: '',
                 email: '',
                 phone: '',
@@ -37,7 +46,8 @@ const MoodFlowData = {
         },
         
         saveProfile: function(profileData) {
-            localStorage.setItem('moodflow_user_profile', JSON.stringify(profileData));
+            // TODO: save to Supabase user profile table
+            MoodFlowDataCache.profile = profileData;
         }
     },
 
@@ -46,14 +56,14 @@ const MoodFlowData = {
     // ========================
     tests: {
         getAll: function() {
-            const tests = localStorage.getItem('moodflow_tests');
-            return tests ? JSON.parse(tests) : [];
+            // TODO: fetch from Supabase tests table
+            return MoodFlowDataCache.tests || [];
         },
         
         save: function(testData) {
             const tests = this.getAll();
             tests.push(testData);
-            localStorage.setItem('moodflow_tests', JSON.stringify(tests));
+            MoodFlowDataCache.tests = tests;
             
             // Update stats cache for this user
             MoodFlowData.userStatsCache.saveStats(testData.userId);
@@ -194,8 +204,10 @@ const MoodFlowData = {
         
         // Get cached stats for a user
         getStats: function(userId) {
-            const cached = localStorage.getItem(this.getCacheKey(userId));
-            return cached ? JSON.parse(cached) : null;
+            // TODO: use Supabase cache or server stats
+            const cached = MoodFlowDataCache.statsCache[this.getCacheKey(userId)];
+            console.log(cached); // Debug: Check cached stats for user
+            return cached ? cached : null;
         },
         
         // Save stats for current user
@@ -248,13 +260,13 @@ const MoodFlowData = {
                 cachedAt: new Date().toISOString()
             };
             
-            localStorage.setItem(this.getCacheKey(userId), JSON.stringify(statsData));
+            MoodFlowDataCache.statsCache[this.getCacheKey(userId)] = statsData;
             return statsData;
         },
         
         // Clear cache for a user
         clearStats: function(userId) {
-            localStorage.removeItem(this.getCacheKey(userId));
+            delete MoodFlowDataCache.statsCache[this.getCacheKey(userId)];
         }
     },
 
@@ -296,14 +308,13 @@ const MoodFlowData = {
     // ========================
     moods: {
         getAll: function() {
-            const moods = localStorage.getItem('moodflow_mood_entries');
-            return moods ? JSON.parse(moods) : [];
+            // TODO: replace with Supabase moods table select
+            return MoodFlowDataCache.moods || [];
         },
-        
         save: function(moodData) {
             const moods = this.getAll();
             moods.push(moodData);
-            localStorage.setItem('moodflow_mood_entries', JSON.stringify(moods));
+            MoodFlowDataCache.moods = moods;
         },
         
         getRecent: function(count = 5) {
@@ -394,15 +405,14 @@ const MoodFlowData = {
     // ========================
     achievements: {
         getEarned: function() {
-            const achievements = localStorage.getItem('moodflow_achievements');
-            return achievements ? JSON.parse(achievements) : [];
+            return MoodFlowDataCache.achievements || [];
         },
         
         unlock: function(achievementId) {
             const earned = this.getEarned();
             if (!earned.includes(achievementId)) {
                 earned.push(achievementId);
-                localStorage.setItem('moodflow_achievements', JSON.stringify(earned));
+                MoodFlowDataCache.achievements = earned;
                 return true;
             }
             return false;
@@ -431,8 +441,7 @@ const MoodFlowData = {
     // ========================
     preferences: {
         get: function() {
-            const prefs = localStorage.getItem('moodflow_preferences');
-            return prefs ? JSON.parse(prefs) : {
+            return MoodFlowDataCache.preferences || {
                 emailNotifications: true,
                 testReminders: true,
                 dataAnalytics: true,
@@ -443,7 +452,7 @@ const MoodFlowData = {
         },
         
         save: function(preferences) {
-            localStorage.setItem('moodflow_preferences', JSON.stringify(preferences));
+            MoodFlowDataCache.preferences = preferences;
         }
     },
 
@@ -452,8 +461,7 @@ const MoodFlowData = {
     // ========================
     subscription: {
         get: function() {
-            const sub = localStorage.getItem('moodflow_subscription');
-            return sub ? JSON.parse(sub) : {
+            return MoodFlowDataCache.subscription || {
                 plan: 'FREE',
                 status: 'ACTIVE',
                 startDate: new Date().toISOString(),
@@ -462,7 +470,7 @@ const MoodFlowData = {
         },
         
         save: function(subscription) {
-            localStorage.setItem('moodflow_subscription', JSON.stringify(subscription));
+            MoodFlowDataCache.subscription = subscription;
         },
         
         isPro: function() {
@@ -510,12 +518,12 @@ const MoodFlowData = {
     clearAll: function() {
         if (confirm('⚠️ WARNING: This will delete ALL your data. Are you sure?')) {
             if (confirm('This action cannot be undone. Continue?')) {
-                localStorage.removeItem('moodflow_tests');
-                localStorage.removeItem('moodflow_mood_entries');
-                localStorage.removeItem('moodflow_user_profile');
-                localStorage.removeItem('moodflow_achievements');
-                localStorage.removeItem('moodflow_preferences');
-                localStorage.removeItem('moodflow_subscription');
+                MoodFlowDataCache.tests = [];
+                MoodFlowDataCache.moods = [];
+                MoodFlowDataCache.profile = null;
+                MoodFlowDataCache.achievements = [];
+                MoodFlowDataCache.preferences = {};
+                MoodFlowDataCache.subscription = null;
                 alert('✓ All data cleared');
                 location.reload();
             }

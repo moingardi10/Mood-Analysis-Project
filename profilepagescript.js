@@ -1,388 +1,220 @@
-// Modal Functions
-function showLogoutModal() {
-    document.getElementById('logoutModal').classList.add('show');
-}
+/**
+ * profilepagescript.js — MoodFlow Profile (Full Rewrite)
+ * All data real from Supabase. No fake stats.
+ */
 
-function showCancelModal() {
-    document.getElementById('cancelModal').classList.add('show');
-}
+window.addEventListener('load', async () => {
+    const sb = window.sb;
+    if (!sb) { window.location.href = 'signpage.html'; return; }
+    const { data: { user }, error } = await sb.auth.getUser();
+    if (error || !user) { window.location.href = 'signpage.html'; return; }
 
-function showDeleteModal() {
-    document.getElementById('deleteModal').classList.add('show');
-}
+    loadProfileData(user);
+});
 
-function showPasswordModal() {
-    document.getElementById('passwordModal').classList.add('show');
-}
+async function loadProfileData(user) {
+    const sb = window.sb;
 
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('show');
-}
+    // Fill name/email immediately from auth
+    const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+    setEl('userName',  name);
+    setEl('userEmail', user.email);
+    setEl('fullName',  name, 'value');
+    setEl('email',     user.email, 'value');
 
-function getPersonalInfoDB() {
-    return JSON.parse(localStorage.getItem('personalInfoDB')) || [];
-}
+    // Update avatar initials
+    const av = document.querySelector('.profile-avatar-large');
+    if (av) { const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); av.childNodes[0].textContent = initials; }
 
-function savePersonalInfoDB(data) {
-    localStorage.setItem('personalInfoDB', JSON.stringify(data));
-}
-
-// Close modal on background click
-document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', function (e) {
-        if (e.target === this) {
-            this.classList.remove('show');
+    try {
+        // Load from users table (extra profile fields)
+        const { data: profile } = await sb.from('users').select('*').eq('id', user.id).single();
+        if (profile) {
+            if (profile.name) setEl('fullName', profile.name, 'value');
         }
-    });
+
+        // Stats
+        const [{ count: totalTests }, { data: streak }, { data: tests }, { data: weeks }] = await Promise.all([
+            sb.from('test_results').select('*',{count:'only',head:true}).eq('user_id', user.id),
+            sb.from('user_streaks').select('current_streak_days,longest_streak_days').eq('user_id', user.id).single(),
+            sb.from('test_results').select('average_score,created_at').eq('user_id', user.id).order('created_at'),
+            sb.from('test_responses').select('week,prediction_label').eq('user_id', user.id)
+        ]);
+
+        const avgMood = tests?.length
+            ? (tests.reduce((s,t)=>s+parseFloat(t.average_score),0)/tests.length).toFixed(1) : '0.0';
+
+        // Days active = days between first test and now
+        const daysActive = tests?.length
+            ? Math.ceil((new Date()-new Date(tests[0].created_at))/(1000*60*60*24)) : 0;
+
+        // Update stat grid
+        const statNums = document.querySelectorAll('.stat-number');
+        if (statNums[0]) statNums[0].textContent = totalTests || 0;
+        if (statNums[1]) statNums[1].textContent = streak?.current_streak_days || 0;
+        if (statNums[2]) statNums[2].textContent = avgMood;
+        if (statNums[3]) statNums[3].textContent = daysActive;
+
+        // Member since
+        const memberEl = document.querySelector('.member-since, [data-member-since]');
+        if (memberEl && tests?.length) {
+            const joined = new Date(user.created_at||tests[0].created_at);
+            memberEl.textContent = `Member since ${joined.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})} · ${daysActive} days of emotional growth`;
+        }
+
+        // Delete modal — update with real stats
+        const deleteList = document.querySelector('#deleteModal ul');
+        if (deleteList) {
+            deleteList.innerHTML = `
+                <li>• ${totalTests||0} mood test results</li>
+                <li>• ${daysActive} days of tracked data</li>
+                <li>• ${weeks?.length||0}/4 weekly responses</li>
+                <li>• All reports and insights</li>`;
+        }
+
+    } catch(e) { console.error('[Profile]', e); }
+}
+
+function setEl(id, val, prop='textContent') {
+    const el = document.getElementById(id);
+    if (el) el[prop] = val;
+}
+
+// ── Save personal info ────────────────────────────────────
+async function savePersonalInfo(event) {
+    event.preventDefault();
+    const sb = window.sb;
+    const btn = event.target.querySelector('[type="submit"]');
+    if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
+
+    try {
+        const { data: { user } } = await sb.auth.getUser();
+        const name = document.getElementById('fullName')?.value?.trim();
+
+        if (name) {
+            await sb.from('users').update({ name }).eq('id', user.id);
+            await sb.auth.updateUser({ data: { full_name: name } });
+        }
+
+        if (btn) { btn.textContent = '✅ Saved!'; setTimeout(()=>{ btn.textContent='Save Changes'; btn.disabled=false; }, 2000); }
+        else alert('✅ Profile updated successfully!');
+
+    } catch(e) {
+        console.error(e);
+        if (btn) { btn.textContent = 'Save Changes'; btn.disabled = false; }
+        alert('Error saving: ' + e.message);
+    }
+}
+
+// ── Change Password ───────────────────────────────────────
+async function changePassword(event) {
+    event.preventDefault();
+    const sb = window.sb;
+    const inputs = event.target.querySelectorAll('input[type="password"]');
+    const newPw  = inputs[1]?.value;
+    const confPw = inputs[2]?.value;
+
+    if (newPw !== confPw) { alert('Passwords do not match!'); return; }
+    if (newPw.length < 6) { alert('Password must be at least 6 characters.'); return; }
+
+    try {
+        const { error } = await sb.auth.updateUser({ password: newPw });
+        if (error) throw error;
+        alert('✅ Password changed successfully!');
+        closeModal('passwordModal');
+        event.target.reset();
+    } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ── Export Data ───────────────────────────────────────────
+async function exportData() {
+    const sb = window.sb;
+    try {
+        const { data:{user} } = await sb.auth.getUser();
+        const [{ data: tests }, { data: weeks }, { data: profile }] = await Promise.all([
+            sb.from('test_results').select('*').eq('user_id', user.id),
+            sb.from('test_responses').select('*').eq('user_id', user.id),
+            sb.from('users').select('*').eq('id', user.id).single()
+        ]);
+        const exportObj = {
+            exportDate: new Date().toISOString(),
+            profile: { name: profile?.name, email: user.email, id: user.id },
+            testResults: tests || [],
+            weeklyResponses: weeks || []
+        };
+        const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `moodflow-export-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        alert('✅ Your data has been exported successfully!');
+    } catch(e) { alert('Export error: ' + e.message); }
+}
+
+// ── Delete Account ────────────────────────────────────────
+async function confirmDelete() {
+    const confirmText = document.getElementById('deleteConfirm')?.value;
+    if (confirmText !== 'DELETE') { alert('Please type "DELETE" to confirm.'); return; }
+    if (!confirm('FINAL WARNING: This permanently deletes all your data. Continue?')) return;
+
+    const sb = window.sb;
+    try {
+        const { data:{user} } = await sb.auth.getUser();
+        // Delete user data
+        await sb.from('test_responses').delete().eq('user_id', user.id);
+        await sb.from('test_results').delete().eq('user_id', user.id);
+        await sb.from('user_streaks').delete().eq('user_id', user.id);
+        await sb.from('users').delete().eq('id', user.id);
+        await sb.auth.signOut();
+        alert('Your account has been deleted. We are sorry to see you go!');
+        window.location.href = 'signpage.html';
+    } catch(e) { alert('Error deleting account: ' + e.message); }
+}
+
+// ── Google Calendar Reminder ──────────────────────────────
+async function addToGoogleCalendar() {
+    const sb = window.sb;
+    const { data: latest } = await sb.from('test_responses')
+        .select('submitted_at,week').eq('user_id', (await sb.auth.getUser()).data.user.id)
+        .order('week', {ascending:false}).limit(1).single();
+
+    const nextDate = latest
+        ? new Date(new Date(latest.submitted_at).getTime() + 7*24*60*60*1000)
+        : new Date(Date.now() + 7*24*60*60*1000);
+
+    const weekNum = latest ? Math.min(latest.week + 1, 4) : 1;
+    const pad = n => String(n).padStart(2,'0');
+    const fmt = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T090000`;
+    const end  = new Date(nextDate); end.setHours(9,30,0,0);
+    const start = new Date(nextDate); start.setHours(9,0,0,0);
+
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE`
+        + `&text=${encodeURIComponent(`MoodFlow — Week ${weekNum} Test`)}`
+        + `&dates=${fmt(start)}/${fmt(end)}`
+        + `&details=${encodeURIComponent('Time for your weekly MoodFlow mood assessment. Takes about 5 minutes.')}`
+        + `&sf=true&output=xml`;
+
+    window.open(url, '_blank');
+}
+
+// ── Modals ────────────────────────────────────────────────
+function showDeleteModal()   { document.getElementById('deleteModal')?.classList.add('show'); }
+function showPasswordModal() { document.getElementById('passwordModal')?.classList.add('show'); }
+function closeModal(id)      { document.getElementById(id)?.classList.remove('show'); }
+
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 });
 
-//Welcome with User name
-window.addEventListener('load', () => {
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
-
-    if (user && document.getElementById('userName')) {
-        document.getElementById('userName').textContent =
-            `${user.name}`;
-    }
-
-    if (user && document.getElementById('userEmail')) {
-        document.getElementById('userEmail').textContent =
-            `${user.email}`;
-    }
-});
-
-
-// Handle Logout
-function handleLogout() {
-    // Clear user session
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('rememberMe');
-
-    // Show confirmation
-    alert('You have been logged out successfully!');
-
-    // Redirect to sign-in page
+// ── Logout ────────────────────────────────────────────────
+async function handleLogout() {
+    if (!confirm('Are you sure you want to log out?')) return;
+    await window.sb?.auth.signOut().catch(console.error);
     window.location.href = 'signpage.html';
 }
 
-// Save Personal Info
-function savePersonalInfo(event) {
-    event.preventDefault();
-
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
-
-    const formData = {
-        userEmail: user?.email || null, // link to user
-        fullName: document.getElementById('fullName').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        dob: document.getElementById('dob').value,
-        location: document.getElementById('location').value,
-        bio: document.getElementById('bio').value,
-        updatedAt: new Date().toISOString()
-    };
-
-    // get existing JSON array
-    let db = getPersonalInfoDB();
-    if (!Array.isArray(db)) db = [];
-
-    // check if user already exists → update instead of duplicate
-    const index = db.findIndex(item => item.userEmail === formData.userEmail);
-
-    if (index !== -1) {
-        db[index] = formData; // update existing
-    } else {
-        db.push(formData); // add new object
-    }
-
-    // save back
-    savePersonalInfoDB(db);
-
-    console.log('Saved to personalInfoDB:', db);
-
-    alert(' Profile updated successfully!');
-}
-
-window.addEventListener('load', () => {
-    const user = JSON.parse(localStorage.getItem('loggedInUser'));
-    if (!user) return;
-
-    const db = getPersonalInfoDB();
-    if (!Array.isArray(db)) return;
-
-    const profile = db.find(p => p.userEmail === user.email);
-    if (!profile) return;
-
-    document.getElementById('fullName').value = profile.fullName || '';
-    document.getElementById('email').value = profile.email || '';
-    document.getElementById('phone').value = profile.phone || '';
-    document.getElementById('dob').value = profile.dob || '';
-    document.getElementById('location').value = profile.location || '';
-    document.getElementById('bio').value = profile.bio || '';
-});
-
-// Handle Avatar Change
+function toggleSidebar() { document.getElementById('sidebar')?.classList.toggle('mobile-open'); }
 function handleAvatarChange(event) {
     const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            // In production, upload to server
-            console.log('Avatar uploaded:', e.target.result);
-            alert(' Avatar updated! (In production, this would upload to server)');
-        };
-        reader.readAsDataURL(file);
-    }
+    if (file) alert('Avatar upload coming soon! For now your initials are shown.');
 }
-
-// Change Password
-function changePassword(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const newPassword = form.querySelector('input[placeholder="Enter new password"]').value;
-    const confirmPassword = form.querySelector('input[placeholder="Confirm new password"]').value;
-
-    if (newPassword !== confirmPassword) {
-        alert(' Passwords do not match!');
-        return;
-    }
-
-    // Simulate API call
-    console.log('Changing password...');
-
-    setTimeout(() => {
-        alert('Password changed successfully!');
-        closeModal('passwordModal');
-        form.reset();
-    }, 500);
-}
-
-// Confirm Cancel Subscription
-function confirmCancel() {
-    if (confirm('Are you absolutely sure? This will downgrade you to the free plan.')) {
-        console.log('Canceling subscription...');
-        alert('✓ Subscription canceled. You\'ll have access until March 15, 2026.');
-        closeModal('cancelModal');
-    }
-}
-
-// Confirm Delete Account
-function confirmDelete() {
-    const confirmText = document.getElementById('deleteConfirm').value;
-
-    if (confirmText !== 'DELETE') {
-        alert(' Please type "DELETE" to confirm account deletion.');
-        return;
-    }
-
-    if (confirm('FINAL WARNING: This will permanently delete all your data. Continue?')) {
-        console.log('Deleting account...');
-
-        // Simulate API call
-        setTimeout(() => {
-            alert('Your account has been deleted. We\'re sorry to see you go!');
-            window.location.href = 'mood-analysis-homepage.html';
-        }, 1000);
-    }
-}
-
-// Export Data
-function exportData() {
-    console.log('Exporting user data...');
-
-    // Simulate data export
-    const userData = {
-        profile: {
-            name: 'Alex Morgan',
-            email: 'alex.morgan@email.com',
-            memberSince: 'September 15, 2023'
-        },
-        stats: {
-            testsTaken: 47,
-            dayStreak: 12,
-            avgMood: 8.2,
-            daysActive: 156
-        },
-        subscription: {
-            plan: 'Pro',
-            status: 'Active'
-        }
-    };
-
-    // Create downloadable file
-    const dataStr = JSON.stringify(userData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'moodflow-data-export.json';
-    link.click();
-
-    alert('✓ Your data has been exported successfully!');
-}
-
-// Toggle sidebar on mobile
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('mobile-open');
-}
-
-// Navigation active state
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function (e) {
-        if (!this.href.includes('html')) {
-            e.preventDefault();
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            this.classList.add('active');
-        }
-    });
-});
-
-// PAGE TOGGLE (ngIf style)
-function showSignup() {
-    document.querySelector('.form-container').style.display = 'none';
-    document.getElementById('signupContainer').style.display = 'block';
-}
-
-function showLogin() {
-    document.querySelector('.form-container').style.display = 'block';
-    document.getElementById('signupContainer').style.display = 'none';
-}
-
-// USERS DB (local JSON)
-function getUsersDB() {
-    return JSON.parse(localStorage.getItem('usersDB')) || [];
-}
-
-function saveUsersDB(users) {
-    localStorage.setItem('usersDB', JSON.stringify(users));
-}
-
-// SIGNUP HANDLER
-function handleSignup(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('signupName').value.trim();
-    const email = document.getElementById('signupEmail').value.trim().toLowerCase();
-    const password = document.getElementById('signupPassword').value.trim();
-
-    const errorBox = document.getElementById('signupError');
-    const errorText = document.getElementById('signupErrorText');
-
-    errorBox.classList.remove('show');
-
-    // validations
-    if (!name || !email || !password) {
-        signupError('Please fill all fields');
-        return;
-    }
-
-    if (password.length < 6) {
-        signupError('Password must be at least 6 characters');
-        return;
-    }
-
-    const users = getUsersDB();
-
-    // duplicate email check
-    const exists = users.some(u => u.email === email);
-
-    if (exists) {
-        signupError('Email already registered');
-        return;
-    }
-
-    // create user object
-    const newUser = {
-        name,
-        email,
-        password,
-        createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    saveUsersDB(users);
-
-    // auto login after signup
-    localStorage.setItem('loggedInUser', JSON.stringify(newUser));
-
-    alert('Account created successfully!');
-
-    window.location.href = "user-homepage.html";
-}
-
-// PAGE TOGGLE (ngIf style)
-function showSignup() {
-    document.querySelector('.form-container').style.display = 'none';
-    document.getElementById('signupContainer').style.display = 'block';
-}
-
-function showLogin() {
-    document.querySelector('.form-container').style.display = 'block';
-    document.getElementById('signupContainer').style.display = 'none';
-}
-
-// USERS DB (local JSON)
-function getUsersDB() {
-    return JSON.parse(localStorage.getItem('usersDB')) || [];
-}
-
-function saveUsersDB(users) {
-    localStorage.setItem('usersDB', JSON.stringify(users));
-}
-
-// SIGNUP HANDLER
-function handleSignup(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('signupName').value.trim();
-    const email = document.getElementById('signupEmail').value.trim().toLowerCase();
-    const password = document.getElementById('signupPassword').value.trim();
-
-    const errorBox = document.getElementById('signupError');
-    const errorText = document.getElementById('signupErrorText');
-
-    errorBox.classList.remove('show');
-
-    // validations
-    if (!name || !email || !password) {
-        signupError('Please fill all fields');
-        return;
-    }
-
-    if (password.length < 6) {
-        signupError('Password must be at least 6 characters');
-        return;
-    }
-
-    const users = getUsersDB();
-
-    // duplicate email check
-    const exists = users.some(u => u.email === email);
-
-    if (exists) {
-        signupError('Email already registered');
-        return;
-    }
-
-    // create user object
-    const newUser = {
-        name,
-        email,
-        password,
-        createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    saveUsersDB(users);
-
-    // auto login after signup
-    localStorage.setItem('loggedInUser', JSON.stringify(newUser));
-
-    alert('Account created successfully!');
-
-    window.location.href = "user-homepage.html";
-}
-
-

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your History - MoodFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboardstyle.css">
+</head>
+<body>
+<div class="animated-bg"></div><div class="grain"></div>
+<div class="content-wrapper">
+    <aside class="sidebar" id="sidebar">
+        <div class="flex items-center space-x-2 mb-12">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center"><span class="text-xl">🌊</span></div>
+            <span class="font-display text-2xl">MoodFlow</span>
+        </div>
+        <nav>
+            <a href="user-homepage.html" class="nav-item"><span class="icon">🏠</span><span>Home</span></a>
+            <a href="take-test.html"     class="nav-item"><span class="icon">📝</span><span>Take Test</span></a>
+            <a href="dashboard.html"     class="nav-item"><span class="icon">📊</span><span>Dashboard</span></a>
+            <a href="history.html"       class="nav-item active"><span class="icon">🕐</span><span>Your History</span></a>
+            <a href="reports.html"       class="nav-item"><span class="icon">📄</span><span>Your Data (Reports)</span></a>
+            <a href="profile-page.html"  class="nav-item"><span class="icon">⚙️</span><span>Settings</span></a>
+        </nav>
+    </aside>
+    <header class="top-bar">
+        <div>
+            <h1 class="text-2xl font-display">Your History</h1>
+            <p class="text-sm text-gray-400 font-mono">All your mood test results</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="window.location.href='take-test.html'" class="btn btn-primary">📝 New Test</button>
+            <button onclick="handleLogout()" class="btn btn-secondary">🚪 Logout</button>
+        </div>
+    </header>
+    <main class="main-content">
+        <!-- Filters -->
+        <div class="card animate-in mb-6">
+            <div class="flex flex-wrap justify-between items-center gap-4">
+                <div><h3 class="text-xl font-bold">Filter Results</h3></div>
+                <div class="date-filter" id="dateFilter">
+                    <button class="filter-btn" onclick="setFilter('7days',this)">7 Days</button>
+                    <button class="filter-btn active" onclick="setFilter('30days',this)">30 Days</button>
+                    <button class="filter-btn" onclick="setFilter('90days',this)">90 Days</button>
+                    <button class="filter-btn" onclick="setFilter('all',this)">All Time</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card animate-in"><div class="text-sm text-gray-400 font-mono mb-2">TOTAL TESTS</div><div class="stat-number" id="hTotalTests">–</div></div>
+            <div class="stat-card animate-in"><div class="text-sm text-gray-400 font-mono mb-2">AVG SCORE</div><div class="stat-number" id="hAvgScore">–</div></div>
+            <div class="stat-card animate-in"><div class="text-sm text-gray-400 font-mono mb-2">BEST SCORE</div><div class="stat-number" id="hBestScore">–</div></div>
+            <div class="stat-card animate-in"><div class="text-sm text-gray-400 font-mono mb-2">WEEKS DONE</div><div class="stat-number" id="hWeeks">–</div></div>
+        </div>
+
+        <!-- Trend Chart -->
+        <div class="card animate-in mb-6">
+            <h3 class="text-xl font-bold mb-4">Mood Score Over Time</h3>
+            <div class="chart-container"><canvas id="historyChart"></canvas></div>
+        </div>
+
+        <!-- Full Test Table -->
+        <div class="card animate-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">All Tests</h3>
+                <span id="hResultCount" class="badge badge-info">Loading...</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>Date</th><th>Time</th><th>Score</th><th>Emotional State</th><th>ML Label</th><th>Stress</th><th>Duration</th></tr></thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="mobile-menu-toggle" onclick="toggleSidebar()">☰</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script>
+let allTests=[], histChart=null;
+const grid='#1e293b', tick='#64748b';
+
+window.addEventListener('load', async()=>{
+    const sb=window.sb; if(!sb){window.location.href='signpage.html';return;}
+    const {data:{user},error}=await sb.auth.getUser(); if(error||!user){window.location.href='signpage.html';return;}
+    const [{data:tests},{data:weeks}]=await Promise.all([
+        sb.from('test_results').select('*').eq('user_id',user.id).order('created_at'),
+        sb.from('test_responses').select('week').eq('user_id',user.id)
+    ]);
+    allTests=tests||[];
+    document.getElementById('hWeeks').textContent=(weeks?.length||0)+'/4';
+    setFilter('30days', document.querySelector('.filter-btn.active'));
+});
+
+function setFilter(period, btn){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    const now=new Date(), cutoffs={'7days':7,'30days':30,'90days':90};
+    const days=cutoffs[period];
+    const filtered = days ? allTests.filter(t=>new Date(t.created_at)>=new Date(now-days*864e5)) : allTests;
+    renderHistory(filtered);
+}
+
+function renderHistory(tests){
+    const el=id=>document.getElementById(id);
+    const avg=tests.length?(tests.reduce((s,t)=>s+parseFloat(t.average_score),0)/tests.length).toFixed(2):'—';
+    const best=tests.length?Math.max(...tests.map(t=>parseFloat(t.average_score))).toFixed(2):'—';
+    el('hTotalTests').textContent=tests.length; el('hAvgScore').textContent=avg; el('hBestScore').textContent=best;
+    el('hResultCount').textContent=tests.length+' results';
+
+    // Chart
+    const ctx=el('historyChart');
+    if(histChart){try{histChart.destroy();}catch(e){} histChart=null;}
+    if(ctx&&window.Chart&&tests.length){
+        const sorted=[...tests].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+        histChart=new Chart(ctx,{type:'line',data:{
+            labels:sorted.map(t=>new Date(t.created_at).toLocaleDateString([],{month:'short',day:'numeric'})),
+            datasets:[{label:'Mood Score',data:sorted.map(t=>parseFloat(t.average_score)),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',tension:0.4,fill:true,pointRadius:4}]
+        },options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:tick},grid:{color:grid}},y:{min:1,max:5,ticks:{color:tick},grid:{color:grid}}}}});
+    }
+
+    // Table
+    const tbody=el('historyTableBody');
+    if(!tbody) return;
+    if(!tests.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:#64748b;">No tests in this period</td></tr>';return;}
+    const lc=l=>l==='Stable'?'#10b981':l==='Unstable'?'#ef4444':'#f59e0b';
+    tbody.innerHTML=[...tests].reverse().map((t,i)=>{
+        const d=new Date(t.created_at);
+        return `<tr><td>${tests.length-i}</td><td>${d.toLocaleDateString()}</td><td>${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
+        <td>${parseFloat(t.average_score).toFixed(2)}/5</td><td>${t.emotional_state||'—'}</td>
+        <td style="color:${lc(t.mood_classification)};font-weight:600">${t.mood_classification||'—'}</td>
+        <td>${t.stress_level||'—'}</td><td>${t.duration_seconds?Math.round(t.duration_seconds/60)+'m':'—'}</td></tr>`;
+    }).join('');
+}
+function handleLogout(){if(!confirm('Log out?'))return;window.sb?.auth.signOut();window.location.href='signpage.html';}
+function toggleSidebar(){document.getElementById('sidebar')?.classList.toggle('mobile-open');}
+</script>
+</body></html>
