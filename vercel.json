@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/signpage.html" }
+    { "source": "/", "destination": "/homepage.html" }
   ]
 }
