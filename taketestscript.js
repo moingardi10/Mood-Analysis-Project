@@ -40,7 +40,7 @@ let answers = [];
 let testStartTime = new Date();
 let currentWeekNumber = 1;
 
-const API_BASE = 'https://MoodLens-api.onrender.com';
+const API_BASE = 'https://moodflow-api.onrender.com';
 const API_KEY = 'mood_flow_model_key';
 
 function initializeTest() {
