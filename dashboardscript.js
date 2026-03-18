@@ -4,7 +4,7 @@
  *        PDF (no blank pages), history page, reports page
  */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://moodflow-api.onrender.com';
 const API_KEY  = 'mood_flow_model_key';
 
 // Chart instances — kept so we can destroy & redraw on refresh/filter
