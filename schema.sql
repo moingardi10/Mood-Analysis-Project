@@ -1,5 +1,5 @@
 -- ============================================================
--- MOODFLOW — COMPLETE SUPABASE SCHEMA
+-- MoodLens — COMPLETE SUPABASE SCHEMA
 -- Run this in your Supabase SQL Editor
 -- ============================================================
 

@@ -1,6 +1,6 @@
 //GETTING USER MOOD HISTORY
 function getUserMoodHistory(){
-    // TODO: Replace with Supabase query from moodflow_tests/moods table
+    // TODO: Replace with Supabase query from MoodLens_tests/moods table
     return [];
 }
 

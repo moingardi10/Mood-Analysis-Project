@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Reports - MoodFlow</title>
+    <title>Your Reports - MoodLens</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dashboardstyle.css">
@@ -14,7 +14,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="flex items-center space-x-2 mb-12">
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-cyan-500 flex items-center justify-center"><span class="text-xl">🌊</span></div>
-            <span class="font-display text-2xl">MoodFlow</span>
+            <span class="font-display text-2xl">MoodLens</span>
         </div>
         <nav>
             <a href="user-homepage.html" class="nav-item"><span class="icon">🏠</span><span>Home</span></a>
@@ -204,11 +204,11 @@ async function exportCSV(){
         rows.push([i+1,d.toLocaleDateString(),d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),parseFloat(t.average_score).toFixed(2),t.emotional_state||'',t.mood_classification||'',t.stress_level||'',t.duration_seconds?Math.round(t.duration_seconds/60)+'m':'']);
     });
     const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
-    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='moodflow-history.csv';a.click();
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='MoodLens-history.csv';a.click();
 }
 async function exportJSON(){
     const data={exportDate:new Date().toISOString(),user:{email:_user.email},testResults:_tests,weeklyResponses:_weeks};
-    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='moodflow-full-export.json';a.click();
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='MoodLens-full-export.json';a.click();
 }
 // ── Countdown Timer ──────────────────────────────────────
 function renderReminder() {
@@ -348,9 +348,9 @@ function openGoogleCalendar() {
     const fmt = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T090000`;
     const start = new Date(nextDate); start.setHours(9,0,0,0);
     const url = `https://calendar.google.com/calendar/render?action=TEMPLATE`
-        + `&text=${encodeURIComponent('MoodFlow — Week ' + weekNum + ' Mood Test')}`
+        + `&text=${encodeURIComponent('MoodLens — Week ' + weekNum + ' Mood Test')}`
         + `&dates=${fmt(start)}/${fmt(start).replace('T090000','T093000')}`
-        + `&details=${encodeURIComponent('Time for your weekly MoodFlow mood assessment.\nTakes about 5 minutes.\n\nOpen: http://localhost:3000/take-test.html')}`
+        + `&details=${encodeURIComponent('Time for your weekly MoodLens mood assessment.\nTakes about 5 minutes.\n\nOpen: http://localhost:3000/take-test.html')}`
         + `&sf=true&output=xml`;
     window.open(url, '_blank');
 }
@@ -360,7 +360,7 @@ async function addGoogleCalendar() { openGoogleCalendar(); }
 
 function copyReminder(dateStr) {
     const weekNum = _weeks.length ? Math.min(_weeks.length + 1, 4) : 1;
-    const text = `📅 MoodFlow Reminder\n\nWeek ${weekNum} mood test is due on ${dateStr}.\nOpen: http://localhost:3000/take-test.html\n\nTakes about 5 minutes.`;
+    const text = `📅 MoodLens Reminder\n\nWeek ${weekNum} mood test is due on ${dateStr}.\nOpen: http://localhost:3000/take-test.html\n\nTakes about 5 minutes.`;
     navigator.clipboard.writeText(text).then(() => {
         alert('✅ Reminder text copied to clipboard!');
     }).catch(() => {

@@ -1,12 +1,12 @@
 /**
  * ============================================
- * MOODFLOW - CENTRALIZED DATA MANAGER
+ * MoodLens - CENTRALIZED DATA MANAGER
  * ============================================
  * This file manages ALL real user data across the application
  * NO SAMPLE DATA - Everything is calculated from actual user actions
  */
 
-const MoodFlowDataCache = {
+const MoodLensDataCache = {
     userId: null,
     profile: null,
     tests: [],
@@ -17,22 +17,22 @@ const MoodFlowDataCache = {
     statsCache: {}
 };
 
-const MoodFlowData = {
+const MoodLensData = {
     
     // ========================
     // USER PROFILE DATA
     // ========================
     user: {
         getId: function() {
-            if (!MoodFlowDataCache.userId) {
-                MoodFlowDataCache.userId = 'user_' + Date.now();
+            if (!MoodLensDataCache.userId) {
+                MoodLensDataCache.userId = 'user_' + Date.now();
             }
-            return MoodFlowDataCache.userId;
+            return MoodLensDataCache.userId;
         },
         
         getProfile: function() {
             // TODO: Use Supabase user profile table
-            return MoodFlowDataCache.profile || {
+            return MoodLensDataCache.profile || {
                 fullName: '',
                 email: '',
                 phone: '',
@@ -47,7 +47,7 @@ const MoodFlowData = {
         
         saveProfile: function(profileData) {
             // TODO: save to Supabase user profile table
-            MoodFlowDataCache.profile = profileData;
+            MoodLensDataCache.profile = profileData;
         }
     },
 
@@ -57,16 +57,16 @@ const MoodFlowData = {
     tests: {
         getAll: function() {
             // TODO: fetch from Supabase tests table
-            return MoodFlowDataCache.tests || [];
+            return MoodLensDataCache.tests || [];
         },
         
         save: function(testData) {
             const tests = this.getAll();
             tests.push(testData);
-            MoodFlowDataCache.tests = tests;
+            MoodLensDataCache.tests = tests;
             
             // Update stats cache for this user
-            MoodFlowData.userStatsCache.saveStats(testData.userId);
+            MoodLensData.userStatsCache.saveStats(testData.userId);
         },
         
         getLatest: function() {
@@ -107,7 +107,7 @@ const MoodFlowData = {
     // ========================
     stats: {
         getAverageMoodScore: function() {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             if (tests.length === 0) return 0;
             
             const sum = tests.reduce((acc, test) => acc + parseFloat(test.averageScore || 0), 0);
@@ -115,7 +115,7 @@ const MoodFlowData = {
         },
         
         getCurrentStreak: function() {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             if (tests.length === 0) return 0;
             
             // Sort tests by date
@@ -143,11 +143,11 @@ const MoodFlowData = {
         },
         
         getWeeklyTestCount: function() {
-            return MoodFlowData.tests.getThisWeek().length;
+            return MoodLensData.tests.getThisWeek().length;
         },
         
         getCompletionRate: function() {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             if (tests.length === 0) return 0;
             
             const completed = tests.filter(test => test.status === 'COMPLETED').length;
@@ -155,7 +155,7 @@ const MoodFlowData = {
         },
         
         getDaysActive: function() {
-            const profile = MoodFlowData.user.getProfile();
+            const profile = MoodLensData.user.getProfile();
             const joinDate = new Date(profile.joinDate);
             const today = new Date();
             
@@ -164,7 +164,7 @@ const MoodFlowData = {
         },
         
         getAverageStressLevel: function() {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             if (tests.length === 0) return 0;
             
             // Calculate from test answers (questions about stress)
@@ -177,7 +177,7 @@ const MoodFlowData = {
         },
         
         getLastTestDate: function() {
-            const latest = MoodFlowData.tests.getLatest();
+            const latest = MoodLensData.tests.getLatest();
             return latest ? new Date(latest.date) : null;
         },
         
@@ -199,13 +199,13 @@ const MoodFlowData = {
     userStatsCache: {
         // Get cache key for user
         getCacheKey: function(userId) {
-            return 'moodflow_stats_' + userId;
+            return 'MoodLens_stats_' + userId;
         },
         
         // Get cached stats for a user
         getStats: function(userId) {
             // TODO: use Supabase cache or server stats
-            const cached = MoodFlowDataCache.statsCache[this.getCacheKey(userId)];
+            const cached = MoodLensDataCache.statsCache[this.getCacheKey(userId)];
             console.log(cached); // Debug: Check cached stats for user
             return cached ? cached : null;
         },
@@ -213,7 +213,7 @@ const MoodFlowData = {
         // Save stats for current user
         saveStats: function(userId) {
             // Get all tests for this user
-            const tests = MoodFlowData.tests.getAll().filter(t => t.userId === userId);
+            const tests = MoodLensData.tests.getAll().filter(t => t.userId === userId);
             
             // Calculate stats
             const weeklyTests = tests.filter(t => {
@@ -260,13 +260,13 @@ const MoodFlowData = {
                 cachedAt: new Date().toISOString()
             };
             
-            MoodFlowDataCache.statsCache[this.getCacheKey(userId)] = statsData;
+            MoodLensDataCache.statsCache[this.getCacheKey(userId)] = statsData;
             return statsData;
         },
         
         // Clear cache for a user
         clearStats: function(userId) {
-            delete MoodFlowDataCache.statsCache[this.getCacheKey(userId)];
+            delete MoodLensDataCache.statsCache[this.getCacheKey(userId)];
         }
     },
 
@@ -275,7 +275,7 @@ const MoodFlowData = {
     // ========================
     calendar: {
         getTestDates: function() {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             return tests.map(test => {
                 const date = new Date(test.date);
                 return {
@@ -295,7 +295,7 @@ const MoodFlowData = {
         },
         
         getTestsForMonth: function(year, month) {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             return tests.filter(test => {
                 const date = new Date(test.date);
                 return date.getFullYear() === year && date.getMonth() === month;
@@ -309,12 +309,12 @@ const MoodFlowData = {
     moods: {
         getAll: function() {
             // TODO: replace with Supabase moods table select
-            return MoodFlowDataCache.moods || [];
+            return MoodLensDataCache.moods || [];
         },
         save: function(moodData) {
             const moods = this.getAll();
             moods.push(moodData);
-            MoodFlowDataCache.moods = moods;
+            MoodLensDataCache.moods = moods;
         },
         
         getRecent: function(count = 5) {
@@ -334,7 +334,7 @@ const MoodFlowData = {
     // ========================
     analytics: {
         getSentimentData: function(days = 30) {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - days);
             
@@ -349,7 +349,7 @@ const MoodFlowData = {
         },
         
         getMoodDistribution: function() {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             
             const distribution = {
                 'Excellent': 0,
@@ -378,7 +378,7 @@ const MoodFlowData = {
         },
         
         getWeeklySummary: function() {
-            const weekTests = MoodFlowData.tests.getThisWeek();
+            const weekTests = MoodLensData.tests.getThisWeek();
             
             if (weekTests.length === 0) {
                 return {
@@ -405,22 +405,22 @@ const MoodFlowData = {
     // ========================
     achievements: {
         getEarned: function() {
-            return MoodFlowDataCache.achievements || [];
+            return MoodLensDataCache.achievements || [];
         },
         
         unlock: function(achievementId) {
             const earned = this.getEarned();
             if (!earned.includes(achievementId)) {
                 earned.push(achievementId);
-                MoodFlowDataCache.achievements = earned;
+                MoodLensDataCache.achievements = earned;
                 return true;
             }
             return false;
         },
         
         checkAndUnlock: function() {
-            const testCount = MoodFlowData.tests.getCount();
-            const streak = MoodFlowData.stats.getCurrentStreak();
+            const testCount = MoodLensData.tests.getCount();
+            const streak = MoodLensData.stats.getCurrentStreak();
             
             // First test
             if (testCount >= 1) this.unlock('first_test');
@@ -441,7 +441,7 @@ const MoodFlowData = {
     // ========================
     preferences: {
         get: function() {
-            return MoodFlowDataCache.preferences || {
+            return MoodLensDataCache.preferences || {
                 emailNotifications: true,
                 testReminders: true,
                 dataAnalytics: true,
@@ -452,7 +452,7 @@ const MoodFlowData = {
         },
         
         save: function(preferences) {
-            MoodFlowDataCache.preferences = preferences;
+            MoodLensDataCache.preferences = preferences;
         }
     },
 
@@ -461,7 +461,7 @@ const MoodFlowData = {
     // ========================
     subscription: {
         get: function() {
-            return MoodFlowDataCache.subscription || {
+            return MoodLensDataCache.subscription || {
                 plan: 'FREE',
                 status: 'ACTIVE',
                 startDate: new Date().toISOString(),
@@ -470,7 +470,7 @@ const MoodFlowData = {
         },
         
         save: function(subscription) {
-            MoodFlowDataCache.subscription = subscription;
+            MoodLensDataCache.subscription = subscription;
         },
         
         isPro: function() {
@@ -485,12 +485,12 @@ const MoodFlowData = {
     export: {
         getAllData: function() {
             return {
-                user: MoodFlowData.user.getProfile(),
-                tests: MoodFlowData.tests.getAll(),
-                moods: MoodFlowData.moods.getAll(),
-                achievements: MoodFlowData.achievements.getEarned(),
-                preferences: MoodFlowData.preferences.get(),
-                subscription: MoodFlowData.subscription.get(),
+                user: MoodLensData.user.getProfile(),
+                tests: MoodLensData.tests.getAll(),
+                moods: MoodLensData.moods.getAll(),
+                achievements: MoodLensData.achievements.getEarned(),
+                preferences: MoodLensData.preferences.get(),
+                subscription: MoodLensData.subscription.get(),
                 exportDate: new Date().toISOString()
             };
         },
@@ -500,7 +500,7 @@ const MoodFlowData = {
         },
         
         toCSV: function() {
-            const tests = MoodFlowData.tests.getAll();
+            const tests = MoodLensData.tests.getAll();
             let csv = 'Date,Time,Mood Score,Emotional State,Duration,Status\n';
             
             tests.forEach(test => {
@@ -518,12 +518,12 @@ const MoodFlowData = {
     clearAll: function() {
         if (confirm('⚠️ WARNING: This will delete ALL your data. Are you sure?')) {
             if (confirm('This action cannot be undone. Continue?')) {
-                MoodFlowDataCache.tests = [];
-                MoodFlowDataCache.moods = [];
-                MoodFlowDataCache.profile = null;
-                MoodFlowDataCache.achievements = [];
-                MoodFlowDataCache.preferences = {};
-                MoodFlowDataCache.subscription = null;
+                MoodLensDataCache.tests = [];
+                MoodLensDataCache.moods = [];
+                MoodLensDataCache.profile = null;
+                MoodLensDataCache.achievements = [];
+                MoodLensDataCache.preferences = {};
+                MoodLensDataCache.subscription = null;
                 alert('✓ All data cleared');
                 location.reload();
             }
@@ -532,9 +532,9 @@ const MoodFlowData = {
 };
 
 // Make it globally available
-window.MoodFlowData = MoodFlowData;
+window.MoodLensData = MoodLensData;
 
-console.log('✓ MoodFlow Data Manager Loaded');
-console.log('Total Tests:', MoodFlowData.tests.getCount());
-console.log('Current Streak:', MoodFlowData.stats.getCurrentStreak());
-console.log('Average Mood:', MoodFlowData.stats.getAverageMoodScore());
+console.log('✓ MoodLens Data Manager Loaded');
+console.log('Total Tests:', MoodLensData.tests.getCount());
+console.log('Current Streak:', MoodLensData.stats.getCurrentStreak());
+console.log('Average Mood:', MoodLensData.stats.getAverageMoodScore());

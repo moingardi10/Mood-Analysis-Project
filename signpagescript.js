@@ -1,5 +1,5 @@
 /**
- * signpagescript.js — MoodFlow Auth
+ * signpagescript.js — MoodLens Auth
  */
 
 function togglePassword() {

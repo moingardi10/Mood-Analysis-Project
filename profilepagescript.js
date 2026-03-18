@@ -1,5 +1,5 @@
 /**
- * profilepagescript.js — MoodFlow Profile (Full Rewrite)
+ * profilepagescript.js — MoodLens Profile (Full Rewrite)
  * All data real from Supabase. No fake stats.
  */
 
@@ -145,7 +145,7 @@ async function exportData() {
         const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `moodflow-export-${new Date().toISOString().slice(0,10)}.json`;
+        a.download = `MoodLens-export-${new Date().toISOString().slice(0,10)}.json`;
         a.click();
         alert('✅ Your data has been exported successfully!');
     } catch(e) { alert('Export error: ' + e.message); }
@@ -189,9 +189,9 @@ async function addToGoogleCalendar() {
     const start = new Date(nextDate); start.setHours(9,0,0,0);
 
     const url = `https://calendar.google.com/calendar/render?action=TEMPLATE`
-        + `&text=${encodeURIComponent(`MoodFlow — Week ${weekNum} Test`)}`
+        + `&text=${encodeURIComponent(`MoodLens — Week ${weekNum} Test`)}`
         + `&dates=${fmt(start)}/${fmt(end)}`
-        + `&details=${encodeURIComponent('Time for your weekly MoodFlow mood assessment. Takes about 5 minutes.')}`
+        + `&details=${encodeURIComponent('Time for your weekly MoodLens mood assessment. Takes about 5 minutes.')}`
         + `&sf=true&output=xml`;
 
     window.open(url, '_blank');

@@ -1,5 +1,5 @@
 /**
- * userhomepagescript.js — MoodFlow Home
+ * userhomepagescript.js — MoodLens Home
  * No fake data. All stats hidden until Supabase responds.
  */
 

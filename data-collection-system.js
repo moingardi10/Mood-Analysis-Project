@@ -1,6 +1,6 @@
 /**
  * ============================================
- * MOODFLOW - ADVANCED DATA COLLECTION SYSTEM
+ * MoodLens - ADVANCED DATA COLLECTION SYSTEM
  * ============================================
  * Collects detailed test responses from multiple users
  * Stores everything for research and analysis
@@ -439,35 +439,35 @@ const DataCollectionSystem = {
         downloadAllData: function () {
             const json = this.exportAllJSON();
             const timestamp = new Date().toISOString().split('T')[0];
-            this.downloadFile(json, `moodflow-complete-data-${timestamp}.json`, 'application/json');
+            this.downloadFile(json, `MoodLens-complete-data-${timestamp}.json`, 'application/json');
             alert('✓ Complete data exported as JSON');
         },
 
         downloadTestSummary: function () {
             const csv = this.exportTestsCSV();
             const timestamp = new Date().toISOString().split('T')[0];
-            this.downloadFile(csv, `moodflow-test-summary-${timestamp}.csv`, 'text/csv');
+            this.downloadFile(csv, `MoodLens-test-summary-${timestamp}.csv`, 'text/csv');
             alert('✓ Test summary exported as CSV');
         },
 
         downloadDetailedResponses: function () {
             const csv = this.exportDetailedResponsesCSV();
             const timestamp = new Date().toISOString().split('T')[0];
-            this.downloadFile(csv, `moodflow-detailed-responses-${timestamp}.csv`, 'text/csv');
+            this.downloadFile(csv, `MoodLens-detailed-responses-${timestamp}.csv`, 'text/csv');
             alert('✓ Detailed responses exported as CSV');
         },
 
         downloadSimpleQA: function () {
             const csv = this.exportSimpleQAFormat();
             const timestamp = new Date().toISOString().split('T')[0];
-            this.downloadFile(csv, `moodflow-simple-qa-${timestamp}.csv`, 'text/csv');
+            this.downloadFile(csv, `MoodLens-simple-qa-${timestamp}.csv`, 'text/csv');
             alert('✓ Simple Q&A format exported (Q1→3, Q2→1, etc.)');
         },
 
         downloadCategoryAnalysis: function () {
             const csv = this.exportCategoryAnalysisCSV();
             const timestamp = new Date().toISOString().split('T')[0];
-            this.downloadFile(csv, `moodflow-category-analysis-${timestamp}.csv`, 'text/csv');
+            this.downloadFile(csv, `MoodLens-category-analysis-${timestamp}.csv`, 'text/csv');
             alert('✓ Category analysis exported as CSV');
         },
 
